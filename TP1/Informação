@@ -1,0 +1,51 @@
+UDP em Java
+
+register()
+lookup()
+
+Servidor:
+    
+    while(1){
+        receber_pedido();
+        processar_pedido();
+        enviar_resposta();
+    }
+
+
+Cliente:
+
+    envio_pedido();
+    receber_resposta();
+    mostrar_resposta();
+
+-----
+
+JAVA.NET:
+
+    -Datagram socket:
+        - setSocketTimeout()
+        - cliente: construtor s/argumentos
+        - servidor: construtor c/porto
+
+        (send() e recv() )
+
+    -Datagram packet:
+        ??
+ 
+    
+    -INET Address:
+        - Inet 4 Address - getByName() 
+        - Inet 6 Address 
+    
+    -Socket Address
+
+
+-----
+
+-É necessário especificar os formatos das mensagens (normalmente usa-se strings para as mensagens).
+    
+
+Aplicar à mensagem:
+
+    - trim() -> remove os caracteres não visíveis no início e no fim da string. Previne erros de processamento.
+    - split(":") -> permite decompor uma string em várias de acordo com o separador especificado como argumento (neste caso, ":").
