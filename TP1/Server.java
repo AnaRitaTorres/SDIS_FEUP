@@ -49,6 +49,7 @@ class Server{
             System.out.println("Port number must be higher than 1024");
         }
 
+        //create datagram socket
         DatagramSocket serverSocket = new DatagramSocket(port_number); //porta >= 1024
 
         byte[] request = new byte[1024];
@@ -56,17 +57,31 @@ class Server{
 
 
         while(true){
-        
+            
+           //vessel for the received datagram
            DatagramPacket receivedDatagram = new DatagramPacket(request, request.length);
 
+           //receives datagram
            serverSocket.receive(receivedDatagram);
 
            //convert byte[] to String
            String info = new String(receivedDatagram.getData());
 
+           toSend = info.getBytes(); //getBytes from String Library
+           
            //processar pedido
-           //get IP address
+           //get client's IP address
            InetAddress ip = receivedDatagram.getAddress();
+
+           //get client's port_number
+           int port_number = receivedDatagram.getPort();
+
+           //create the datagram to send
+           DatagramPacket sentDatagram = new DatagramPacket(toSend, toSend.length,ip,port_number);
+
+           //datagram to socket
+           serverSocket.send(toSend);
+
 
 
         }
