@@ -37,7 +37,32 @@ class Server{
             return -1;
         }
         else{
+            Vehicle vehicle = new Vehicle(owner_name, plate_number);
+            vehicles.add(vehicle);
             return vehicles.size();
+        }
+    }
+
+    public String processRequest(String receivedInfo){
+
+        receivedInfo.trim(); //removes spaces
+        String[] info = receivedInfo.split(" "); //splits string "receivedInfo" by its spaces
+
+        String function = info[0].toUpperCase();
+        String plate_number = info[1].toUpperCase();
+        String owner_name = "";
+
+        for (Integer i=2; i < info.length(); i++){
+            owner_name += info[i].toUpperCase() + " ";
+        }
+
+        owner_name.trim();
+
+        if (function == "REGISTER"){
+            return String.valueOf(register(owner_name, plate_number));
+        }
+        else if (function == "LOOKUP"){
+            return lookup(plate_number);
         }
     }
 
@@ -67,9 +92,11 @@ class Server{
            //convert byte[] to String
            String info = new String(receivedDatagram.getData());
 
-           toSend = info.getBytes(); //getBytes from String Library
-           
-           //processar pedido
+           //process request
+           String response = processRequest(info);
+
+           answer = response.getBytes(); //getBytes from String Library
+
            //get client's IP address
            InetAddress ip = receivedDatagram.getAddress();
 
@@ -77,12 +104,10 @@ class Server{
            int port_number = receivedDatagram.getPort();
 
            //create the datagram to send
-           DatagramPacket sentDatagram = new DatagramPacket(toSend, toSend.length,ip,port_number);
+           DatagramPacket sentDatagram = new DatagramPacket(answer, answer.length, ip,port_number);
 
            //datagram to socket
-           serverSocket.send(toSend);
-
-
+           serverSocket.send(sentDatagram);
 
         }
 
