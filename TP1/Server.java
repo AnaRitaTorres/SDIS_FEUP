@@ -1,115 +1,129 @@
-import java.lang.*;
+import java.util.*;
 import java.net.*;
 import java.io.*;
-import java.util.Vector;
 
 class Server{
+    
+    Vector<Vehicle> vehicles = new Vector<Vehicle>();
 
-    public Vector<Vehicle> vehicles;
+    public static void main(String[] args) throws IOException{
+        
+       Server server = new Server();
+       server.run(args);
 
-    //retorna o nome do owner associado à matrícula, caso exista, caso contrário, retorna "NOT_FOUND";
+    }
 
-    public Integer searchPlateNumber(String plate_number){
+    public int register(String plate_number, String owner_name){
 
-        for (Integer i=0; i<vehicles.size(); i++){
-            if (vehicles.get(i).getPlateNumber() == plate_number){
-                return i;
+        for (int i=0; i < vehicles.size(); i++){
+            if (vehicles.get(i).plate_number.equals(plate_number)){
+                return -1;
             }
         }
 
-        return -1;
+        Vehicle v = new Vehicle(plate_number, owner_name);
+        vehicles.add(v);
+
+        return vehicles.size();
+    
+    }
+
+     public String lookup(String plate_number){
+
+        for (int i=0; i < vehicles.size(); i++){
+            if (vehicles.get(i).plate_number.equals(plate_number)){
+                return "oioioi";
+            }
+        }
+
+        return "NOT_FOUND";
+        
+    }
+
+    public String processRequest(String request){
+
+        System.out.println("Request received: " + request);
+
+        request.trim();
+
+        String[] parsedString = request.split(" ");
+
+        String message =new String();
+
+        if (parsedString[0].equals("register")){
+
+            System.out.println("x"+parsedString[1]+"x");
+            message = Integer.toString(register(parsedString[1], parsedString[2]));
+        }
+
+        else if(parsedString[0].equals("lookup")){
+
+            message = lookup(parsedString[1]);
+        
+        }
+
+        return message;
 
     }
 
-    public String lookup(String plate_number){
+    public void run(String[] args) throws IOException{
 
-        Integer number = searchPlateNumber(plate_number);
-        if (number != -1)
-            return vehicles.get(number).getOwnerName();
-        else
-            return "NOT_FOUND";
-    }
+        if (args.length != 1){
+                    System.out.println("Usage: java Server <port_number>");
+                    return;
+                }
 
-    public Integer register(String owner_name, String plate_number){
+                int port_number = Integer.parseInt(args[0]); //converte string para o tipo primitivo int
 
-        Integer number = searchPlateNumber(plate_number);
-        if (number != -1){
-            return -1;
-        }
-        else{
-            Vehicle vehicle = new Vehicle(owner_name, plate_number);
-            vehicles.add(vehicle);
-            return vehicles.size();
-        }
-    }
+                //Verificar valor da porta
+                if(port_number < 1024){
+                    System.out.println("Port_number must be a value higher or equal to 1024");
+                    return;
+                }
 
-    public String processRequest(String receivedInfo){
+                //Passos para Comunicação com Sockets UDP
 
-        receivedInfo.trim(); //removes spaces
-        String[] info = receivedInfo.split(" "); //splits string "receivedInfo" by its spaces
+                // Primeiro - Criar um Socket (atribui-se um nome ao socket UDP criado se se pretender receber mensagens de sockets remotos a que não se enviou mensagens previamente)
+                DatagramSocket serverSocket = new DatagramSocket(port_number);
+                
+                //Receção de pedidos do cliente
 
-        String function = info[0].toUpperCase();
-        String plate_number = info[1].toUpperCase();
-        String owner_name = "";
-
-        for (Integer i=2; i < info.length(); i++){
-            owner_name += info[i].toUpperCase() + " ";
-        }
-
-        owner_name.trim();
-
-        if (function == "REGISTER"){
-            return String.valueOf(register(owner_name, plate_number));
-        }
-        else if (function == "LOOKUP"){
-            return lookup(plate_number);
-        }
-    }
-
-    public static void main(String[] args) throws Exception{
-
-        int port_number = args[2];
-
-        if (port_number < 1024){
-            System.out.println("Port number must be higher than 1024");
-        }
-
-        //create datagram socket
-        DatagramSocket serverSocket = new DatagramSocket(port_number); //porta >= 1024
-
-        byte[] request = new byte[1024];
-        byte[] answer = new byte[1024];
-
-
-        while(true){
+                //cria um array de bytes usado para criar o DatagramPacket
             
-           //vessel for the received datagram
-           DatagramPacket receivedDatagram = new DatagramPacket(request, request.length);
 
-           //receives datagram
-           serverSocket.receive(receivedDatagram);
+                DatagramPacket packet = null;
 
-           //convert byte[] to String
-           String info = new String(receivedDatagram.getData());
+                // Segundo - Transferir informação (DatagramPackets)
+                while(true){
+                    
+                    byte[] buf = new byte[1024];
 
-           //process request
-           String response = processRequest(info);
+                    //Cria-se o DatagramPacket(byte[] buf, int length, InetAddress address, int port);
+                    //O primeiro argumento contém a informação do cliente, o segundo o comprimento dessa mesma informação. Os terceiro e quarto argumentos são necessários para o servidor conseguir responder para o cliente
+                    packet = new DatagramPacket(buf, buf.length);
 
-           answer = response.getBytes(); //getBytes from String Library
+                    serverSocket.receive(packet);
 
-           //get client's IP address
-           InetAddress ip = receivedDatagram.getAddress();
+                    // Pedido Recebido
+                    // public byte[] getData() - DatagramPacket function
+                    // String(byte[] bytes)
+                    String request = new String(packet.getData());
 
-           //get client's port_number
-           int port_number = receivedDatagram.getPort();
+                    //Construção da resposta do servidor
+                    String response = processRequest(request);
+                    System.out.println(response);
+                    buf = response.getBytes();
 
-           //create the datagram to send
-           DatagramPacket sentDatagram = new DatagramPacket(answer, answer.length, ip,port_number);
+                    //Envio da resposta
+                    InetAddress address = packet.getAddress();
+                    int port = packet.getPort();
+                    packet = new DatagramPacket(buf, buf.length, address, port);
 
-           //datagram to socket
-           serverSocket.send(sentDatagram);
-
+                    serverSocket.send(packet);
+            
         }
+
+        //serverSocket.close();
 
     }
 
