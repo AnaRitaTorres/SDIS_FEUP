@@ -24,7 +24,37 @@ public class TestApp {
         if (!validArguments(args))
             return;
 
-        init();
+        Registry registry;
+        try{
+            registry = LocateRegistry.getRegistry();
+            Interface rmi = (Interface) registry.lookup(peer_ap);
+
+            /*
+            TODO: Change switch statement when doing enhancements
+            */
+            switch(sub_protocol){
+                case "BACKUP":
+                    rmi.backup(file, replicationDeg);
+                    break;
+
+                case "RESTORE":
+                    rmi.restore(peer_ap, file);
+                    break;
+
+                case "DELETE":
+                    rmi.delete(peer_ap, file);
+                    break;
+
+                case "RECLAIM":
+                    rmi.reclaim(peer_ap, reclaimed_space);
+                    break;
+
+            }
+        }
+        catch(Exception e){
+            System.err.println("client exception: " + e.toString());
+            e.printStackTrace();
+        }
     }
 
     public boolean validArguments(String[] args){
@@ -105,41 +135,6 @@ public class TestApp {
             return false;
         }
         return true;
-    }
-
-    public void init(){
-
-        Registry registry;
-        try{
-            registry = LocateRegistry.getRegistry();
-            Interface rmi = (Interface) registry.lookup(peer_ap);
-
-            /*
-            TODO: Change switch statement when doing enhancements
-            */
-            switch(sub_protocol){
-                case "BACKUP":
-                    rmi.backup(file, replicationDeg);
-                    break;
-
-                case "RESTORE":
-                    rmi.restore(peer_ap, file);
-                    break;
-
-                case "DELETE":
-                    rmi.delete(peer_ap, file);
-                    break;
-
-                case "RECLAIM":
-                    rmi.reclaim(peer_ap, reclaimed_space);
-                    break;
-
-            }
-        }
-        catch(Exception e){
-            System.err.println("client exception: " + e.toString());
-            e.printStackTrace();
-        }
     }
 }
 

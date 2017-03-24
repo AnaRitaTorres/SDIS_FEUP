@@ -8,7 +8,7 @@ class Client{
     public static void main(String[] args) throws UnknownHostException, IOException{
 
         if (args.length < 4){
-            System.out.println("Usage: java Client <host_name> <port_number> <oper> <opnd>*");
+            System.out.println("Usage: java client <host_name> <port_number> <oper> <opnd>*");
             return;
         }
 

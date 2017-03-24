@@ -4,7 +4,6 @@ package server;
  * Created by catarina on 21-03-2017.
  */
 import client.Interface;
-
 import java.io.File;
 import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
@@ -17,7 +16,6 @@ public class Peer implements Interface{
 
     static int DEFAULT_PORT= 1099;
 
-    public void backup(File file, int replicationDeg){}
     public void delete(String peer_ap, File file){}
     public void restore(String peer_ap, File file){}
     public void reclaim(String peer_ap, int reclaimed_space){}
@@ -63,5 +61,11 @@ public class Peer implements Interface{
             System.err.println("Peer error: " + e.toString());
             e.printStackTrace();
         }
+    }
+
+    public void backup(File file, int replicationDeg){
+
+        //Chamar o BackupProtocol
+
     }
 }
