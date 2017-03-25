@@ -69,7 +69,7 @@ class Server{
     public void run(String[] args) throws IOException{
 
         if (args.length != 1){
-                    System.out.println("Usage: java Server <port_number>");
+                    System.out.println("Usage: java server <port_number>");
                     return;
                 }
 
