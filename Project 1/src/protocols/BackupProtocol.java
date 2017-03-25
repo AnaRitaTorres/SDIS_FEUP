@@ -13,12 +13,18 @@ import java.security.NoSuchAlgorithmException;
 /**
  * Created by catarina on 23-03-2017.
  */
+
+//NOTE:it's better to implement Runnable instead of extending Thread,
+// because you can implement many interfaces but extend only from a single class
 public class BackupProtocol implements Runnable{
 
     private int replicationDeg;
     private File file;
     private String fileId;
 
+    public BackupProtocol(){
+
+    }
     public BackupProtocol(File file, int replicationDeg){
         this.file = file;
         this.replicationDeg = replicationDeg;
@@ -83,7 +89,8 @@ public class BackupProtocol implements Runnable{
     }
 
     public void run(){
-
+        //TODO:ter aqui o putchunk e o store
+        //TODO: maybe fazer handlers para cada tipo de msg
 
     }
 

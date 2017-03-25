@@ -47,7 +47,6 @@ public class MessageHeader {
     }
 
     public void check(String[] headerElem){
-        message.setMessageType("PUTCHUNK");
         if(checkVersion(headerElem[VERSION]))
             message.setVersion(Float.parseFloat(headerElem[VERSION]));
         message.setSenderId(Integer.parseInt(headerElem[SENDER_ID]));
@@ -56,7 +55,7 @@ public class MessageHeader {
     }
 
     public void checkDelete(String[] headerElem){
-        message.setMessageType("PUTCHUNK");
+        message.setMessageType("DELETE");
         if(checkVersion(headerElem[VERSION]))
             message.setVersion(Float.parseFloat(headerElem[VERSION]));
         message.setSenderId(Integer.parseInt(headerElem[SENDER_ID]));
@@ -73,18 +72,22 @@ public class MessageHeader {
                 checkPutchunk(headerElem);
                 break;
             case CHUNK:
+                message.setMessageType("CHUNK");
                 check(headerElem);
                 break;
             case DELETE:
                 checkDelete(headerElem);
                 break;
             case STORED:
+                message.setMessageType("STORED");
                 check(headerElem);
                 break;
             case REMOVED:
+                message.setMessageType("REMOVED");
                 check(headerElem);
                 break;
             case GETCHUNK:
+                message.setMessageType("GETCHUNK");
                 check(headerElem);
                 break;
                 default:

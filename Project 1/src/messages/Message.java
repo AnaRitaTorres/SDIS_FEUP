@@ -1,6 +1,7 @@
 package messages;
 
 import java.io.ByteArrayInputStream;
+import java.net.DatagramPacket;
 
 /**
  * Created by iamgroot on 25/03/17.
@@ -48,10 +49,19 @@ public class Message {
         return body;
     }
 
-    public Message(String message) {
-        String[] m = message.split("\r\n\r\n");
-        this.headers = m[0];
-        this.body = m[1];
+    public Message(DatagramPacket packet) {
+        byte[] buffer = new byte[65000];
+
+        //creates a stream of bytes
+        ByteArrayInputStream byteStream = new ByteArrayInputStream(packet.getData());
+
+        //byte stream to string
+        String stringStream = ByteArraytoString(byteStream);
+
+        String[] message = stringStream.split("\r\n\r\n");
+
+        this.headers = message[0];
+        this.body = message[1];
 
     }
 
