@@ -24,7 +24,7 @@ public class BackupProtocol implements Runnable{
         this.replicationDeg = replicationDeg;
     }
 
-    // DONE
+    //DONE
     public void generateFileId() throws IOException, NoSuchAlgorithmException {
 
         Path path = file.toPath();
