@@ -1,14 +1,15 @@
 package channels;
 
-import java.net.DatagramPacket;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 
 /**
  * Created by iamgroot on 25/03/17.
  */
-public abstract class MC implements Runnable{
+public class MC extends Channel{
 
+    public MC(int port_number, InetAddress address){
+        super(port_number,address);
+    }
 
     //TODO: start thread
     //TODO: confirm stored chunks
