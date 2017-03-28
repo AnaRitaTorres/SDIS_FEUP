@@ -6,7 +6,11 @@ package server;
 import channels.MC;
 import channels.MDB;
 import channels.MDR;
+import chunk.Chunk;
 import client.Interface;
+import fileManager.FileManager;
+import protocols.BackupProtocol;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.MulticastSocket;
@@ -16,6 +20,7 @@ import java.rmi.registry.Registry;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.ExportException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
 
 public class Peer implements Interface{
 
@@ -25,6 +30,8 @@ public class Peer implements Interface{
     private static MDB mdb;
     private static MDR mdr;
     private static MulticastSocket socket;
+
+    private Registry registry;
 
     public void delete(String peer_ap, File file){}
     public void restore(String peer_ap, File file){}
@@ -37,17 +44,10 @@ public class Peer implements Interface{
 
         Peer peer = new Peer();
 
-        socket = new MulticastSocket();
-
-        new Thread(mc).start();
-        new Thread(mdb).start();
-        new Thread(mdr).start();
-
         peer.run(args);
     }
 
-    public void run(String[] args){
-
+    public void run(String[] args) throws IOException {
 
         if (args.length != 1){
             System.out.println("Wrong number of arguments");
@@ -56,12 +56,17 @@ public class Peer implements Interface{
 
         peer_ap = args[0];
 
+        socket = new MulticastSocket();
+
+        new Thread(mc).start();
+        new Thread(mdb).start();
+        new Thread(mdr).start();
+
         initializeRmi();
 
     }
 
     public void initializeRmi(){
-        Registry registry;
         Peer peer = new Peer();
         try {
             Interface rmi = (Interface) UnicastRemoteObject.exportObject(peer, 0);
@@ -70,7 +75,7 @@ public class Peer implements Interface{
                 registry.bind(peer_ap, rmi);
             } catch (ExportException e) {
                 System.out.println("Peer warning: " + e.toString());
-                registry = LocateRegistry.getRegistry(1099);
+                registry = LocateRegistry.getRegistry(DEFAULT_PORT);
             }
             catch(AlreadyBoundException e){
                 System.out.println("Peer warning: " + e.toString());
@@ -82,9 +87,30 @@ public class Peer implements Interface{
         }
     }
 
-    public void backup(File file, int replicationDeg){
+    @Override
+    public void backup(File file, int replicationDeg) throws IOException {
 
-        //Chamar o BackupProtocol
+        FileManager fileManager = new FileManager(file, replicationDeg);
+        ArrayList<Chunk> chunksToBackup = fileManager.divideFileInChunks();
 
+        for (int i = 0; i< chunksToBackup.size(); i++){
+            System.out.println(chunksToBackup.get(i).getChunkNo());
+        }
+
+    }
+
+    @Override
+    public void exit() throws RemoteException {
+        try {
+            // Unregister the RMI
+            this.registry.unbind(peer_ap);
+
+            // Un-export; this will also remove us from the rmi runtime
+            UnicastRemoteObject.unexportObject(this, true);
+
+            System.out.println("Server exiting.");
+        } catch (Exception e) {
+
+        }
     }
 }

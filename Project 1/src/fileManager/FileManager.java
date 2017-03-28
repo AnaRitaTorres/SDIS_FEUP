@@ -11,6 +11,8 @@ import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Created by iamgroot on 27/03/17.
@@ -19,6 +21,17 @@ public class FileManager {
 
     private File file;
     private String fileId;
+    private String path;
+    private int replicationDeg;
+
+    public FileManager(File file, int replicationDeg){
+
+        this.file = file;
+        this.fileId = generateFileId();
+        this.path = "/home/catarina/Desktop/BackUp/" + file.getName();
+        this.replicationDeg = replicationDeg;
+
+    }
 
     public File getFile() {
         return file;
@@ -26,12 +39,6 @@ public class FileManager {
 
     public String getFileId() {
         return fileId;
-    }
-
-    public FileManager(File file, String FileID){
-
-        this.file = file;
-        this.fileId = generateFileId();
     }
 
     public String generateFileId(){
@@ -43,7 +50,7 @@ public class FileManager {
 
             //fileId is name + creationTime + size
             String str = file.getName() + attr.creationTime() + attr.size();
-            System.out.println(str);
+
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             md.update(str.getBytes("UTF-8"));
             byte[] digest = md.digest();
@@ -57,7 +64,9 @@ public class FileManager {
         return fileID;
     }
 
-    public void divideFileInChunks() throws IOException {
+    public ArrayList<Chunk> divideFileInChunks() throws IOException {
+
+        ArrayList<Chunk> chunks = new ArrayList<>();
 
         long fileSize = file.length(); //filesize in byte
         long remainder = (int) fileSize % Chunk.MAX_SIZE;
@@ -66,24 +75,22 @@ public class FileManager {
             numChunks++;
         }
 
-        File chunkFile;
-
         int chunkNo = 1;
 
         Path path = file.toPath();
         byte[] data = Files.readAllBytes(path);
-        int j=0, i;
+        int j=0;
         byte[] chunkArray = new byte[Chunk.MAX_SIZE];
 
-        for (i=0; i< fileSize; i++){
+        for (int i=0; i< fileSize; i++){
             if(i % Chunk.MAX_SIZE == 0 && i>0){
 
-                chunkFile = new File("/home/catarina/Desktop/test" + chunkNo);
-                FileOutputStream output = new FileOutputStream(chunkFile);
+                FileOutputStream output = new FileOutputStream(new File(this.path + chunkNo));
                 output.write(chunkArray);
 
-                //create chunk
-                Chunk chunk = new Chunk(chunkNo, this.fileId, chunkArray, chunkFile);
+                //create chunk and add it to arraylist
+                chunks.add(new Chunk(chunkNo, this.fileId, this.replicationDeg, chunkArray));
+
                 j=0;
                 chunkNo++;
             }
@@ -92,10 +99,12 @@ public class FileManager {
         }
 
         if (chunkNo <= numChunks){
-            chunkFile = new File("/home/catarina/Desktop/test" + chunkNo);
-            System.out.println("Created File!!");
-            FileOutputStream output = new FileOutputStream(chunkFile);
-            output.write(chunkArray, 0, (int)remainder);
+            FileOutputStream output = new FileOutputStream(new File(this.path + chunkNo));
+            chunkArray = Arrays.copyOfRange(chunkArray, 0, (int)remainder);
+            output.write(chunkArray);
+            chunks.add(new Chunk(chunkNo, this.fileId, this.replicationDeg, chunkArray));
         }
+
+        return chunks;
     }
 }

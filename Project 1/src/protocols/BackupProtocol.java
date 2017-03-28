@@ -1,6 +1,7 @@
 package protocols;
 
 import chunk.Chunk;
+import fileManager.FileManager;
 import server.Peer;
 
 import javax.xml.bind.DatatypeConverter;
@@ -21,26 +22,23 @@ public class BackupProtocol implements Runnable{
 
     private int replicationDeg;
     private Chunk chunk;
+    private File file;
     public Peer peer;
 
 
-    public BackupProtocol(Chunk chunk, int replicationDeg){
-        this.chunk = chunk;
+    public BackupProtocol(File file, int replicationDeg){
+        this.file = file;
         this.replicationDeg = replicationDeg;
     }
 
-      public void run(){
+    public void run(){
 
-       while(true){
+        /*while(true){
+        //TODO:peer envia PUTCHUNK por MDB
+        }*/
+        FileManager fileManager = new FileManager(this.file, this.replicationDeg);
 
-           //TODO:peer envia PUTCHUNK por MDB
-
-
-       }
-
-    }
-
-    public static void main(String args[]){
 
     }
+
 }
