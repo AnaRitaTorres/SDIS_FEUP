@@ -3,8 +3,13 @@ package server;
 /**
  * Created by catarina on 21-03-2017.
  */
+import channels.MC;
+import channels.MDB;
+import channels.MDR;
 import client.Interface;
 import java.io.File;
+import java.io.IOException;
+import java.net.MulticastSocket;
 import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
@@ -16,6 +21,11 @@ public class Peer implements Interface{
 
     static int DEFAULT_PORT= 1099;
 
+    private static MC mc;
+    private static MDB mdb;
+    private static MDR mdr;
+    private static MulticastSocket socket;
+
     public void delete(String peer_ap, File file){}
     public void restore(String peer_ap, File file){}
     public void reclaim(String peer_ap, int reclaimed_space){}
@@ -23,13 +33,22 @@ public class Peer implements Interface{
 
     private String peer_ap;
 
-    public static void main(String args[]) {
+    public static void main(String args[]) throws IOException{
 
         Peer peer = new Peer();
+
+        socket = new MulticastSocket();
+
+        new Thread(mc).start();
+        new Thread(mdb).start();
+        new Thread(mdr).start();
+
         peer.run(args);
     }
 
     public void run(String[] args){
+
+
         if (args.length != 1){
             System.out.println("Wrong number of arguments");
             return;
