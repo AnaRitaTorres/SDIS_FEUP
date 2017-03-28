@@ -41,6 +41,10 @@ public class FileManager {
         return fileId;
     }
 
+    public int getReplicationDeg() {
+        return replicationDeg;
+    }
+
     public String generateFileId(){
 
         String fileID=null;

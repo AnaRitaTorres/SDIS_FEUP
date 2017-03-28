@@ -1,16 +1,10 @@
 package protocols;
 
 import chunk.Chunk;
-import fileManager.FileManager;
 import server.Peer;
 
-import javax.xml.bind.DatatypeConverter;
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.io.IOException;
+import java.net.DatagramPacket;
 
 /**
  * Created by catarina on 23-03-2017.
@@ -18,27 +12,22 @@ import java.security.NoSuchAlgorithmException;
 
 //NOTE:it's better to implement Runnable instead of extending Thread,
 // because you can implement many interfaces but extend only from a single class
-public class BackupProtocol implements Runnable{
+public class BackupProtocol{
 
-    private int replicationDeg;
-    private Chunk chunk;
-    private File file;
-    public Peer peer;
+    //TODO: Acrescentar argumento Chunk chunk
+    public static void sendPutchunkMessage() throws IOException {
 
+        String message = "teste";
+        //String message = createPutchunkMessage(chunk);
+        byte[] buf = message.getBytes();
+        DatagramPacket packet = new DatagramPacket(buf, buf.length, Peer.getMdb().getAddress(), Peer.getMdb().getPort_number());
 
-    public BackupProtocol(File file, int replicationDeg){
-        this.file = file;
-        this.replicationDeg = replicationDeg;
+        Peer.getMdb().getSocket().send(packet);
     }
 
-    public void run(){
-
-        /*while(true){
-        //TODO:peer envia PUTCHUNK por MDB
-        }*/
-        FileManager fileManager = new FileManager(this.file, this.replicationDeg);
-
-
+    //TODO: Criar funcao para criar mensagem a ser enviada em sendPutchunkMessage
+    public static String createPutchunkMessage(Chunk chunk){
+            return "";
     }
 
 }

@@ -58,7 +58,7 @@ public class TestApp {
             System.err.println("client exception: " + e.toString());
             e.printStackTrace();
         }
-        if (rmi != null)
+        if (rmi == null)
             rmi.exit();
 
     }
