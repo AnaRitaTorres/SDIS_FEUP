@@ -1,6 +1,8 @@
 package protocols;
 
 import chunk.Chunk;
+import messages.MessageHeaderTest;
+import messages.MessageTest;
 import server.Peer;
 
 import java.io.IOException;
@@ -14,20 +16,19 @@ import java.net.DatagramPacket;
 // because you can implement many interfaces but extend only from a single class
 public class BackupProtocol{
 
-    //TODO: Acrescentar argumento Chunk chunk
-    public static void sendPutchunkMessage() throws IOException {
+    public static void sendPutchunkMessage(Chunk chunk) throws IOException {
 
-        String message = "teste";
-        //String message = createPutchunkMessage(chunk);
+        MessageTest messageTest = new MessageTest(Peer.getVersion(), Peer.getServerId(), chunk.getFileId(), chunk.getChunkNo(), chunk.getReplicationDeg(), chunk.getData());
+        messageTest.createPutchunkMessage();
+
+        String message = messageTest.convertMessageToString();
+
+        System.out.println(message);
+
         byte[] buf = message.getBytes();
         DatagramPacket packet = new DatagramPacket(buf, buf.length, Peer.getMdb().getAddress(), Peer.getMdb().getPort_number());
 
         Peer.getMdb().getSocket().send(packet);
-    }
-
-    //TODO: Criar funcao para criar mensagem a ser enviada em sendPutchunkMessage
-    public static String createPutchunkMessage(Chunk chunk){
-            return "";
     }
 
 }

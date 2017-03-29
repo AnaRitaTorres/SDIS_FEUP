@@ -30,6 +30,10 @@ public class Chunk {
         return fileId;
     }
 
+    public int getReplicationDeg() {
+        return replicationDeg;
+    }
+
     public byte[] getData() {
         return data;
     }

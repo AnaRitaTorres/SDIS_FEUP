@@ -14,7 +14,6 @@ import protocols.BackupProtocol;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.MulticastSocket;
 import java.net.UnknownHostException;
 import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
@@ -28,7 +27,8 @@ public class Peer implements Interface{
 
     static int DEFAULT_PORT= 1099;
 
-    private static MulticastSocket socket;
+    private static String protocol_version;
+    private static int server_id;
 
     //Rmi
     private static Registry registry;
@@ -48,8 +48,6 @@ public class Peer implements Interface{
         if (!validArguments(args))
             return;
 
-        //socket = new MulticastSocket();
-
         mc = new MC(mcPort, mcAddress);
         mdb = new MDB(mdbPort, mdbAddress);
         mdr = new MDR(mdrPort, mdrAddress);
@@ -63,21 +61,27 @@ public class Peer implements Interface{
     }
 
     public static boolean validArguments(String[] args) throws UnknownHostException {
-        if (args.length != 7) {
-            System.out.println("Usage: java server.Peer <peer_ap> <mcAddress> <mcPort> <mdbAddress> <mdbPort> <mdrAddress> <mdrPort>");
+        if (args.length != 9) {
+            System.out.println("Usage: java server.Peer <protocol_version> <serverId> <peer_ap> <mcAddress> <mcPort> <mdbAddress> <mdbPort> <mdrAddress> <mdrPort>");
             return false;
         }
 
-        peer_ap = args[0];
+        if(!args[0].matches("[1-9][0-9]*.[0-9]+")) {
+            return false;
+        }
 
-        mcAddress = InetAddress.getByName(args[1]);
-        mcPort = Integer.parseInt(args[2]);
+        protocol_version = args[0];
+        server_id = Integer.parseInt(args[1]);
+        peer_ap = args[2];
 
-        mdbAddress = InetAddress.getByName(args[3]);
-        mdbPort = Integer.parseInt(args[4]);
+        mcAddress = InetAddress.getByName(args[3]);
+        mcPort = Integer.parseInt(args[4]);
 
-        mdrAddress = InetAddress.getByName(args[5]);
-        mdrPort = Integer.parseInt(args[6]);
+        mdbAddress = InetAddress.getByName(args[5]);
+        mdbPort = Integer.parseInt(args[6]);
+
+        mdrAddress = InetAddress.getByName(args[7]);
+        mdrPort = Integer.parseInt(args[8]);
 
         return true;
     }
@@ -115,14 +119,23 @@ public class Peer implements Interface{
         return mdr;
     }
 
+    public static String getVersion() {
+        return protocol_version;
+    }
+
+    public static int getServerId() {
+        return server_id;
+    }
+
 
     @Override
     public void backup(File file, int replicationDeg) throws IOException {
-
+        System.out.println("lol");
         FileManager fileManager = new FileManager(file, replicationDeg);
         ArrayList<Chunk> chunksToBackup = fileManager.divideFileInChunks();
+        System.out.println("lol");
         for (int i = 0; i< chunksToBackup.size(); i++){
-            BackupProtocol.sendPutchunkMessage();
+            BackupProtocol.sendPutchunkMessage(chunksToBackup.get(i));
         }
 
     }

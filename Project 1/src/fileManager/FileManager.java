@@ -89,8 +89,8 @@ public class FileManager {
         for (int i=0; i< fileSize; i++){
             if(i % Chunk.MAX_SIZE == 0 && i>0){
 
-                FileOutputStream output = new FileOutputStream(new File(this.path + chunkNo));
-                output.write(chunkArray);
+                //FileOutputStream output = new FileOutputStream(new File(this.path + chunkNo));
+                //output.write(chunkArray);
 
                 //create chunk and add it to arraylist
                 chunks.add(new Chunk(chunkNo, this.fileId, this.replicationDeg, chunkArray));
@@ -103,9 +103,9 @@ public class FileManager {
         }
 
         if (chunkNo <= numChunks){
-            FileOutputStream output = new FileOutputStream(new File(this.path + chunkNo));
+            //FileOutputStream output = new FileOutputStream(new File(this.path + chunkNo));
             chunkArray = Arrays.copyOfRange(chunkArray, 0, (int)remainder);
-            output.write(chunkArray);
+            //output.write(chunkArray);
             chunks.add(new Chunk(chunkNo, this.fileId, this.replicationDeg, chunkArray));
         }
 
