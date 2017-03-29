@@ -11,8 +11,8 @@ public class Chunk {
     private int chunkNo;
     private String fileId;
     private int replicationDeg;
-    private File file;
     private byte[] data;
+    //private String chunkId
 
     public Chunk(int chunkNo, String fileId, int replicationDeg, byte[] data){
         this.chunkNo = chunkNo;
@@ -20,6 +20,7 @@ public class Chunk {
         //o chunk precisa de guardar o numero de grau de replica
         this.replicationDeg = replicationDeg;
         this.data = data;
+        //chunkId = fileId + chunkNo;
     }
 
     public int getChunkNo() {
@@ -36,10 +37,6 @@ public class Chunk {
 
     public byte[] getData() {
         return data;
-    }
-
-    public File getFile(){
-        return file;
     }
 
 }
