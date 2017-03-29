@@ -10,12 +10,13 @@ import java.net.MulticastSocket;
  */
 public class Channel implements Runnable{
 
-    public static final int PACKET_MAX_SIZE = 65000;
+    protected static final int PACKET_MAX_SIZE = 65000;
 
-    public MulticastSocket socket;
-    public DatagramPacket packet;
-    public InetAddress address;
-    public int port_number;
+    private MulticastSocket socket;
+    protected DatagramPacket packet;
+
+    private InetAddress address;
+    private int port_number;
 
 
     public Channel(int port_number, InetAddress address){
@@ -28,7 +29,7 @@ public class Channel implements Runnable{
         //opens socket
         try {
             socket = new MulticastSocket(port_number);
-            //TODO: verificar se vale a pena usar socket.setTimeToLive(1);
+            socket.setTimeToLive(1);
             socket.joinGroup(address);
         }
         catch(IOException e){
@@ -36,19 +37,16 @@ public class Channel implements Runnable{
         }
 
         //buffer for packet
-        byte[] buffer = new byte[PACKET_MAX_SIZE];
+        byte[] buf = new byte[PACKET_MAX_SIZE];
 
         while(true){
 
             try {
                 //creates packet for reception
-                packet = new DatagramPacket(buffer, buffer.length);
+                packet = new DatagramPacket(buf, buf.length);
                 socket.receive(packet);
 
-                //responds
-                InetAddress address = packet.getAddress();
-                packet = new DatagramPacket(buffer, buffer.length, address, port_number);
-                socket.send(packet);
+                //TODO: o peer tem que ignorar pedidos dele mesmo
             }
             catch (IOException e) {
                 e.printStackTrace();
@@ -57,6 +55,17 @@ public class Channel implements Runnable{
 
         //TODO:close socket(se der) - para diminuir gastos de mem
 
+    }
 
+    public InetAddress getAddress() {
+        return address;
+    }
+
+    public int getPort_number() {
+        return port_number;
+    }
+
+    public MulticastSocket getSocket() {
+        return socket;
     }
 }

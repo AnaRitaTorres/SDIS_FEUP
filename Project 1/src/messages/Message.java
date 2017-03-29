@@ -77,8 +77,4 @@ public class Message {
         return new String(theChars);
     }
 
-    public static void main(String[] args){
-
-    }
-
 }

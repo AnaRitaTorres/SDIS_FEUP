@@ -3,6 +3,7 @@ package client; /**
  */
 
 import java.io.*;
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
@@ -14,20 +15,22 @@ public class TestApp {
     private int reclaimed_space;
     private File file;
 
-    public static void main(String[] args){
+    public static void main(String[] args) throws RemoteException {
         TestApp testApp = new TestApp();
         testApp.run(args);
     }
 
-    public void run(String[] args){
+    public void run(String[] args) throws RemoteException {
 
         if (!validArguments(args))
             return;
 
         Registry registry;
+        Interface rmi = null;
+
         try{
             registry = LocateRegistry.getRegistry();
-            Interface rmi = (Interface) registry.lookup(peer_ap);
+            rmi = (Interface) registry.lookup(peer_ap);
 
             /*
             TODO: Change switch statement when doing enhancements
@@ -55,6 +58,9 @@ public class TestApp {
             System.err.println("client exception: " + e.toString());
             e.printStackTrace();
         }
+        if (rmi == null)
+            rmi.exit();
+
     }
 
     public boolean validArguments(String[] args){
