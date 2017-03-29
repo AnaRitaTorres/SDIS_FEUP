@@ -41,6 +41,22 @@ public class ComposeHeader {
     }
 
 
+    public String convertHeaderToString(MessageType messageType,String version, int senderId, String fileId, int chunkNo, int replicationDegree){
 
+        String header = messageType + SPACE + version + SPACE + senderId + SPACE + fileId + SPACE + chunkNo + SPACE + replicationDegree + CRLF + CRLF;
+        return header;
+    }
+
+    public String convertHeaderToString(MessageType messageType,String version, int senderId, String fileId, int chunkNo){
+
+        String header = messageType + SPACE + version + SPACE + senderId + SPACE + fileId + SPACE + chunkNo + CRLF + CRLF;
+        return header;
+    }
+
+    public String convertHeaderToString(MessageType messageType,String version, int senderId, String fileId){
+
+        String header = messageType + SPACE + version + SPACE + senderId + SPACE + fileId + CRLF + CRLF;
+        return header;
+    }
 
 }
