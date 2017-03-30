@@ -33,11 +33,10 @@ public class DecomposeMessage {
         for(i=3; i < message.length; i++){
             if(message[i] == LF && message[i-1] == CR && message[i-2]== LF && message[i-3]== CR){
                 break;
-
             }
         }
 
-        header= copyOfRange(message,message[0],i);
+        header = copyOfRange(message,0, i-2);
         body = copyOfRange(message,i+1,message.length);
     }
 

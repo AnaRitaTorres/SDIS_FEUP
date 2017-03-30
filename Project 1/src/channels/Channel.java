@@ -1,5 +1,9 @@
 package channels;
 
+import messages.DecomposeHeader;
+import messages.DecomposeMessage;
+import server.Peer;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
@@ -46,7 +50,15 @@ public class Channel implements Runnable{
                 packet = new DatagramPacket(buf, buf.length);
                 socket.receive(packet);
 
-                //TODO: o peer tem que ignorar pedidos dele mesmo
+                DecomposeMessage message = new DecomposeMessage(packet);
+                DecomposeHeader header = new DecomposeHeader(message.getHeader());
+
+                //Peer ignore its own requests
+                if (header.getSenderId() != Peer.getServerId()){
+                    //TODO: implementar handler
+
+                }
+
             }
             catch (IOException e) {
                 e.printStackTrace();

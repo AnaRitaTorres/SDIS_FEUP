@@ -130,10 +130,10 @@ public class Peer implements Interface{
 
     @Override
     public void backup(File file, int replicationDeg) throws IOException {
-        System.out.println("lol");
+
         FileManager fileManager = new FileManager(file, replicationDeg);
         ArrayList<Chunk> chunksToBackup = fileManager.divideFileInChunks();
-        System.out.println("lol");
+
         for (int i = 0; i< chunksToBackup.size(); i++){
             BackupProtocol.sendPutchunkMessage(chunksToBackup.get(i));
         }

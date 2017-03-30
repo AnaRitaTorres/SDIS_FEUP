@@ -16,7 +16,7 @@ public class ComposeHeader {
     private int replicationDeg;
 
 
-    public ComposeHeader(MessageType messageType,String version, int senderId, String fileId, int chunkNo, int replicationDegree) {
+    public ComposeHeader(MessageType messageType,String version, int senderId, String fileId, int chunkNo, int replicationDeg) {
         this.messageType = messageType;
         this.version = version;
         this.senderId = senderId;
@@ -40,23 +40,21 @@ public class ComposeHeader {
         this.fileId = fileId;
     }
 
+    public String convertPutchunkHeaderToString(){
 
-    public String convertHeaderToString(MessageType messageType,String version, int senderId, String fileId, int chunkNo, int replicationDegree){
-
-        String header = messageType + SPACE + version + SPACE + senderId + SPACE + fileId + SPACE + chunkNo + SPACE + replicationDegree + CRLF + CRLF;
-        return header;
+        return messageType + SPACE + version + SPACE + senderId + SPACE + fileId + SPACE + chunkNo + SPACE + replicationDeg + CRLF;
     }
 
-    public String convertHeaderToString(MessageType messageType,String version, int senderId, String fileId, int chunkNo){
+    public String convertHeaderToString(){
 
-        String header = messageType + SPACE + version + SPACE + senderId + SPACE + fileId + SPACE + chunkNo + CRLF + CRLF;
-        return header;
+        return messageType + SPACE + version + SPACE + senderId + SPACE + fileId + SPACE + chunkNo + CRLF;
+
     }
 
-    public String convertHeaderToString(MessageType messageType,String version, int senderId, String fileId){
+    public String convertDeleteHeaderToString(){
 
-        String header = messageType + SPACE + version + SPACE + senderId + SPACE + fileId + CRLF + CRLF;
-        return header;
+        return messageType + SPACE + version + SPACE + senderId + SPACE + fileId + CRLF;
+
     }
 
 }

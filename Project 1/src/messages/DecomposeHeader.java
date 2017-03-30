@@ -24,13 +24,14 @@ public class DecomposeHeader {
     }
 
     public void handleComponents(String[] headerComponents){
+
         if(messageType != null){
             if(headerComponents.length == 6){
                 this.version = headerComponents[VERSION];
                 this.senderId = Integer.parseInt(headerComponents[SENDER_ID]);
                 this.fileId = headerComponents[FILE_ID];
                 this.chunkNo = Integer.parseInt(headerComponents[CHUNK_NO]);
-                this.replicationDeg = Integer.parseInt(headerComponents[REP_DEG]);
+                this.replicationDeg = Integer.parseInt(headerComponents[REP_DEG].trim());
             }
             else if (headerComponents.length == 5){
                 this.version = headerComponents[VERSION];
@@ -43,31 +44,56 @@ public class DecomposeHeader {
                 this.senderId = Integer.parseInt(headerComponents[SENDER_ID]);
                 this.fileId = headerComponents[FILE_ID];
             }
-
-
         }
     }
 
     public void handleMessageType(String messageType){
-
         switch (messageType){
             case "PUTCHUNK":
                 this.messageType = MessageType.PUTCHUNK;
+                break;
             case "STORED":
                 this.messageType = MessageType.STORED;
+                break;
             case "CHUNK":
                 this.messageType = MessageType.CHUNK;
+                break;
             case "GETCHUNK":
                 this.messageType = MessageType.GETCHUNK;
+                break;
             case"DELETE":
                 this.messageType = MessageType.DELETE;
+                break;
             case "REMOVED":
                 this.messageType = MessageType.REMOVED;
+                break;
             default:
                 this.messageType = null;
+                break;
         }
     }
 
+    public MessageType getMessageType() {
+        return messageType;
+    }
 
+    public String getVersion() {
+        return version;
+    }
 
+    public int getSenderId() {
+        return senderId;
+    }
+
+    public String getFileId() {
+        return fileId;
+    }
+
+    public int getChunkNo() {
+        return chunkNo;
+    }
+
+    public int getReplicationDeg() {
+        return replicationDeg;
+    }
 }

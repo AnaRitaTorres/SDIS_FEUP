@@ -21,24 +21,6 @@ public class MDB extends Channel {
         t.start();
     }
 
-
-    public void run() {
-
-        while(true){
-
-            try{
-                //receive packet
-                getSocket().receive(packet);
-                //treat packet
-
-            }
-            catch(IOException e){
-                e.printStackTrace();
-            }
-
-
-        }
-    }
     //TODO:save putchunks
 
 

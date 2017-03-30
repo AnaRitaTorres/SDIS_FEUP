@@ -13,31 +13,36 @@ public class ComposeMessage {
     private final String CRLF = "\r\n";
 
 
-    public ComposeMessage(MessageType type,String version, int senderId, String fileId, int chunkNo, int replicationDeg){
+    public ComposeMessage(MessageType type,String version, int senderId, String fileId, int chunkNo, int replicationDeg, byte[] body){
         this.header = new ComposeHeader(type,version, senderId, fileId,chunkNo,replicationDeg);
+        this.body=body;
+    }
+
+    public ComposeMessage(MessageType type,String version, int senderId, String fileId, int chunkNo, byte[] body){
+        this.header = new ComposeHeader(type,version, senderId, fileId,chunkNo);
         this.body=body;
     }
 
     public ComposeMessage(MessageType type,String version, int senderId, String fileId, int chunkNo){
         this.header = new ComposeHeader(type,version, senderId, fileId,chunkNo);
-        this.body=body;
+        this.body=null;
     }
 
     public ComposeMessage(MessageType type,String version, int senderId, String fileId){
         this.header = new ComposeHeader(type,version, senderId, fileId);
-        this.body=body;
+        this.body=null;
     }
 
-    public String convertMessageToString(MessageType type,String version, int senderId, String fileId, int chunkNo, int replicationDeg){
-        return header.convertHeaderToString(type,version,senderId, fileId, chunkNo, replicationDeg) + CRLF + body.toString();
+    public String convertPutchunkMessageToString(){
+        return header.convertPutchunkHeaderToString() + CRLF + body.toString();
     }
 
-    public String convertMessageToString(MessageType type,String version, int senderId, String fileId, int chunkNo){
-        return header.convertHeaderToString(type,version,senderId, fileId, chunkNo) + CRLF + body.toString();
+    public String convertMessageToString(){
+        return header.convertHeaderToString() + CRLF + body.toString();
     }
 
-    public String convertMessageTypeToString(MessageType type,String version, int senderId, String fileId){
-        return header.convertHeaderToString(type,version,senderId, fileId) + CRLF + body.toString();
+    public String convertDeleteMessageToString(){
+        return header.convertDeleteHeaderToString() + CRLF + body.toString();
     }
 
 }
