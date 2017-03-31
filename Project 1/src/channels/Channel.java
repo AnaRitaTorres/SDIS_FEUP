@@ -2,12 +2,14 @@ package channels;
 
 import messages.DecomposeHeader;
 import messages.DecomposeMessage;
+import requests.Handler;
 import server.Peer;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.util.Queue;
 
 /**
  * Created by iamgroot on 27/03/17.
@@ -22,10 +24,12 @@ public class Channel implements Runnable{
     private InetAddress address;
     private int port_number;
 
+    private Handler handler;
 
     public Channel(int port_number, InetAddress address){
         this.port_number = port_number;
         this.address = address;
+        handler = new Handler();
     }
 
     public void run(){
@@ -46,18 +50,24 @@ public class Channel implements Runnable{
         while(true){
 
             try {
+                handler.handleRequests();
+
                 //creates packet for reception
                 packet = new DatagramPacket(buf, buf.length);
                 socket.receive(packet);
 
                 DecomposeMessage message = new DecomposeMessage(packet);
-                DecomposeHeader header = new DecomposeHeader(message.getHeader());
+                //DecomposeHeader header = new DecomposeHeader(message.getHeader());
+
+                //TODO: not sure about this implementation
+                handler.addRequest(message);
+
 
                 //Peer ignore its own requests
-                if (header.getSenderId() != Peer.getServerId()){
+                /*if (header.getSenderId() != Peer.getServerId()){
                     //TODO: implementar handler
 
-                }
+                }*/
 
             }
             catch (IOException e) {
@@ -80,4 +90,5 @@ public class Channel implements Runnable{
     public MulticastSocket getSocket() {
         return socket;
     }
+
 }
