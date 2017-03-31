@@ -16,7 +16,7 @@ public class DecomposeHeader {
 
     public DecomposeHeader(byte[] header){
 
-        String h = new String(header);
+        String h = new String(header).trim();
         String[] headerComponents = h.split("[ ]+");
 
         handleMessageType(headerComponents[M_TYPE]);
@@ -31,7 +31,7 @@ public class DecomposeHeader {
                 this.senderId = Integer.parseInt(headerComponents[SENDER_ID]);
                 this.fileId = headerComponents[FILE_ID];
                 this.chunkNo = Integer.parseInt(headerComponents[CHUNK_NO]);
-                this.replicationDeg = Integer.parseInt(headerComponents[REP_DEG].trim());
+                this.replicationDeg = Integer.parseInt(headerComponents[REP_DEG]);
             }
             else if (headerComponents.length == 5){
                 this.version = headerComponents[VERSION];

@@ -1,5 +1,9 @@
 package channels;
 
+import messages.DecomposeHeader;
+import messages.DecomposeMessage;
+import messages.MessageType;
+
 import java.net.InetAddress;
 
 /**

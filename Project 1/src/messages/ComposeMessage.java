@@ -25,7 +25,7 @@ public class ComposeMessage {
 
     public ComposeMessage(MessageType type,String version, int senderId, String fileId, int chunkNo){
         this.header = new ComposeHeader(type,version, senderId, fileId,chunkNo);
-        this.body=null;
+        this.body = null;
     }
 
     public ComposeMessage(MessageType type,String version, int senderId, String fileId){
@@ -39,6 +39,10 @@ public class ComposeMessage {
 
     public String convertMessageToString(){
         return header.convertHeaderToString() + CRLF + body.toString();
+    }
+
+    public String convertMessageToStringWithoutBody(){
+        return header.convertHeaderToString() + CRLF;
     }
 
     public String convertDeleteMessageToString(){

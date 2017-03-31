@@ -1,5 +1,7 @@
 package channels;
 
+import messages.DecomposeHeader;
+import messages.DecomposeMessage;
 import protocols.BackupProtocol;
 
 import java.io.IOException;
@@ -22,7 +24,4 @@ public class MDB extends Channel {
     }
 
     //TODO:save putchunks
-
-
-
 }

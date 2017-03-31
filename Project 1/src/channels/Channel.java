@@ -62,13 +62,6 @@ public class Channel implements Runnable{
                 //TODO: not sure about this implementation
                 handler.addRequest(message);
 
-
-                //Peer ignore its own requests
-                /*if (header.getSenderId() != Peer.getServerId()){
-                    //TODO: implementar handler
-
-                }*/
-
             }
             catch (IOException e) {
                 e.printStackTrace();

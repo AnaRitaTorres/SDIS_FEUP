@@ -34,12 +34,12 @@ public class BackupProtocol{
 
         ComposeMessage messageTest = new ComposeMessage(MessageType.STORED, Peer.getVersion(), Peer.getServerId(), fileId, chunkNo);
 
-        String message = messageTest.convertMessageToString();
+        String message = messageTest.convertMessageToStringWithoutBody();
 
         byte[] buf = message.getBytes();
         DatagramPacket packet = new DatagramPacket(buf, buf.length, Peer.getMc().getAddress(), Peer.getMc().getPort_number());
 
-        Peer.getMc().getSocket().send(packet);
+        System.out.println(Peer.getOccupiedSize());
     }
 
 }

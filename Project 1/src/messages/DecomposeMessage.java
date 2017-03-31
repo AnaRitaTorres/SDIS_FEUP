@@ -3,7 +3,6 @@ package messages;
 import java.net.DatagramPacket;
 
 import static java.util.Arrays.copyOfRange;
-import static sun.security.krb5.Confounder.bytes;
 
 /**
  * Created by iamgroot on 29/03/17.
@@ -37,7 +36,8 @@ public class DecomposeMessage {
         }
 
         header = copyOfRange(message,0, i-2);
-        body = copyOfRange(message,i+1,message.length);
+        //TODO: está a guardar mais bytes do que o suposto... WHY??
+        body = copyOfRange(message,i+1,message.length-1);
     }
 
 
