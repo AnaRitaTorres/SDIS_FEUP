@@ -1,6 +1,7 @@
 package fileManager;
 
 import chunk.Chunk;
+import server.Peer;
 
 import javax.xml.bind.DatatypeConverter;
 import java.io.File;
@@ -8,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -24,7 +26,7 @@ public class FileManager {
     private String path;
     private int replicationDeg;
 
-    public FileManager(File file, int replicationDeg){
+    public FileManager(File file, int replicationDeg) {
 
         this.file = file;
         this.fileId = generateFileId();
@@ -45,9 +47,9 @@ public class FileManager {
         return replicationDeg;
     }
 
-    public String generateFileId(){
+    public String generateFileId() {
 
-        String fileID=null;
+        String fileID = null;
         try {
             Path path = file.toPath();
             BasicFileAttributes attr = Files.readAttributes(path, BasicFileAttributes.class);
@@ -60,8 +62,7 @@ public class FileManager {
             byte[] digest = md.digest();
 
             fileID = DatatypeConverter.printHexBinary(digest);
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -75,7 +76,7 @@ public class FileManager {
         long fileSize = file.length(); //filesize in byte
         long remainder = (int) fileSize % Chunk.MAX_SIZE;
         long numChunks = fileSize / Chunk.MAX_SIZE;
-        if (remainder != 0){
+        if (remainder != 0) {
             numChunks++;
         }
 
@@ -83,11 +84,11 @@ public class FileManager {
 
         Path path = file.toPath();
         byte[] data = Files.readAllBytes(path);
-        int j=0;
+        int j = 0;
         byte[] chunkArray = new byte[Chunk.MAX_SIZE];
 
-        for (int i=0; i< fileSize; i++){
-            if(i % Chunk.MAX_SIZE == 0 && i>0){
+        for (int i = 0; i < fileSize; i++) {
+            if (i % Chunk.MAX_SIZE == 0 && i > 0) {
 
                 //FileOutputStream output = new FileOutputStream(new File(this.path + chunkNo));
                 //output.write(chunkArray);
@@ -95,20 +96,36 @@ public class FileManager {
                 //create chunk and add it to arraylist
                 chunks.add(new Chunk(chunkNo, this.fileId, this.replicationDeg, chunkArray));
 
-                j=0;
+                j = 0;
                 chunkNo++;
             }
             chunkArray[j] = data[i];
             j++;
         }
 
-        if (chunkNo <= numChunks){
+        if (chunkNo <= numChunks) {
             //FileOutputStream output = new FileOutputStream(new File(this.path + chunkNo));
-            chunkArray = Arrays.copyOfRange(chunkArray, 0, (int)remainder);
+            chunkArray = Arrays.copyOfRange(chunkArray, 0, (int) remainder);
             //output.write(chunkArray);
             chunks.add(new Chunk(chunkNo, this.fileId, this.replicationDeg, chunkArray));
         }
 
         return chunks;
     }
+
+    public static void saveFile(byte[] body, int chunkNo, String peerPath) throws IOException {
+
+        Path path = Paths.get(Peer.getPath());
+
+        //If path doesn't exist
+        File file = new File(peerPath + chunkNo);
+        if (!Files.exists(path)){
+            file.getParentFile().mkdirs();
+        }
+
+        FileOutputStream output = new FileOutputStream(new File(peerPath + chunkNo));
+        output.write(body);
+    }
+
+
 }
