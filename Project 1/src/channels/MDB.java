@@ -1,7 +1,10 @@
 package channels;
 
+import messages.DecomposeHeader;
+import messages.DecomposeMessage;
 import protocols.BackupProtocol;
 
+import java.io.IOException;
 import java.net.InetAddress;
 
 /**
@@ -10,6 +13,7 @@ import java.net.InetAddress;
 public class MDB extends Channel {
 
     public MDB(int port_number, InetAddress address){
+
         super(port_number,address);
     }
     //TODO:start thread - deve ser algo deste género, basicamente a thread tem de chamar um método runnable
@@ -19,9 +23,5 @@ public class MDB extends Channel {
         t.start();
     }
 
-
     //TODO:save putchunks
-
-
-
 }

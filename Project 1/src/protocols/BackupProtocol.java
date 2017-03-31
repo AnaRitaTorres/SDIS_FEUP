@@ -1,8 +1,8 @@
 package protocols;
 
 import chunk.Chunk;
-import messages.MessageHeaderTest;
-import messages.MessageTest;
+import messages.ComposeMessage;
+import messages.MessageType;
 import server.Peer;
 
 import java.io.IOException;
@@ -18,10 +18,9 @@ public class BackupProtocol{
 
     public static void sendPutchunkMessage(Chunk chunk) throws IOException {
 
-        MessageTest messageTest = new MessageTest(Peer.getVersion(), Peer.getServerId(), chunk.getFileId(), chunk.getChunkNo(), chunk.getReplicationDeg(), chunk.getData());
-        messageTest.createPutchunkMessage();
+        ComposeMessage messageTest = new ComposeMessage(MessageType.PUTCHUNK, Peer.getVersion(), Peer.getServerId(), chunk.getFileId(), chunk.getChunkNo(), chunk.getReplicationDeg(), chunk.getData());
 
-        String message = messageTest.convertMessageToString();
+        String message = messageTest.convertPutchunkMessageToString();
 
         System.out.println(message);
 
@@ -29,6 +28,18 @@ public class BackupProtocol{
         DatagramPacket packet = new DatagramPacket(buf, buf.length, Peer.getMdb().getAddress(), Peer.getMdb().getPort_number());
 
         Peer.getMdb().getSocket().send(packet);
+    }
+
+    public static void sendStoredMessage(String fileId, int chunkNo) throws IOException {
+
+        ComposeMessage messageTest = new ComposeMessage(MessageType.STORED, Peer.getVersion(), Peer.getServerId(), fileId, chunkNo);
+
+        String message = messageTest.convertMessageToStringWithoutBody();
+
+        byte[] buf = message.getBytes();
+        DatagramPacket packet = new DatagramPacket(buf, buf.length, Peer.getMc().getAddress(), Peer.getMc().getPort_number());
+
+        System.out.println(Peer.getOccupiedSize());
     }
 
 }

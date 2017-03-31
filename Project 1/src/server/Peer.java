@@ -29,6 +29,9 @@ public class Peer implements Interface{
 
     private static String protocol_version;
     private static int server_id;
+    private static int max_size_to_save = 5000000;
+    private static int size_occupied = 0;
+    private static String path = "/home/catarina/Desktop/BackUp/" + server_id + "/";
 
     //Rmi
     private static Registry registry;
@@ -127,13 +130,31 @@ public class Peer implements Interface{
         return server_id;
     }
 
+    public static int getMaxSizeToSave() {
+        return max_size_to_save;
+    }
+
+    public static void setMaxSizeToSave(int size){
+        max_size_to_save = size;
+    }
+
+    public static String getPath(){ return path; }
+
+    public static int getOccupiedSize() {
+        return size_occupied;
+    }
+
+    public static void updateOccupiedSize(int size){
+        size_occupied += size;
+    }
+
 
     @Override
     public void backup(File file, int replicationDeg) throws IOException {
-        System.out.println("lol");
+
         FileManager fileManager = new FileManager(file, replicationDeg);
         ArrayList<Chunk> chunksToBackup = fileManager.divideFileInChunks();
-        System.out.println("lol");
+
         for (int i = 0; i< chunksToBackup.size(); i++){
             BackupProtocol.sendPutchunkMessage(chunksToBackup.get(i));
         }
