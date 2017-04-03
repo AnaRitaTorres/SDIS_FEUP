@@ -31,7 +31,7 @@ public class Peer implements Interface{
     private static int server_id;
     private static int max_size_to_save = 5000000;
     private static int size_occupied = 0;
-    private static String path = "/home/catarina/Desktop/BackUp/" + server_id + "/";
+    private static String path;
 
     //Rmi
     private static Registry registry;
@@ -75,6 +75,7 @@ public class Peer implements Interface{
 
         protocol_version = args[0];
         server_id = Integer.parseInt(args[1]);
+        path = "/home/catarina/Desktop/BackUp/" + server_id + "/";
         peer_ap = args[2];
 
         mcAddress = InetAddress.getByName(args[3]);

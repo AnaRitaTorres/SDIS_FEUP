@@ -57,7 +57,6 @@ public class Channel implements Runnable{
                 socket.receive(packet);
 
                 DecomposeMessage message = new DecomposeMessage(packet);
-                //DecomposeHeader header = new DecomposeHeader(message.getHeader());
 
                 //TODO: not sure about this implementation
                 handler.addRequest(message);
