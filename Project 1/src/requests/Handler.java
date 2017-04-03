@@ -5,6 +5,7 @@ import messages.DecomposeHeader;
 import messages.DecomposeMessage;
 import protocols.BackupProtocol;
 import server.Peer;
+
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -37,7 +38,6 @@ public class Handler {
 
         DecomposeMessage messageToHandle = requestsToHandle.peek();
         DecomposeHeader header = new DecomposeHeader(messageToHandle.getHeader());
-        System.out.println("Message: " + header.getChunkNo());
 
         //Peer ignores its own requests
         if (header.getSenderId() != Peer.getServerId()){
@@ -47,8 +47,8 @@ public class Handler {
                 case PUTCHUNK:
                     handlePutchunk(messageToHandle);
                     break;
-                //TODO: guardar o grau de replica algures...
                 case STORED:
+                    handleStored(messageToHandle);
                     break;
             }
             removeRequest();
@@ -75,10 +75,23 @@ public class Handler {
             Peer.updateOccupiedSize(body.length);
 
             //saves file
-            FileManager.saveFile(body, chunkNo, Peer.getPath());
+            FileManager.saveFile(body, fileId, chunkNo);
 
             BackupProtocol.sendStoredMessage(fileId, chunkNo);
 
         }
+    }
+
+    public void handleStored(DecomposeMessage messageToHandle) throws IOException{
+        byte[] body = messageToHandle.getBody();
+        DecomposeHeader header = new DecomposeHeader(messageToHandle.getHeader());
+
+        String fileId = header.getFileId();
+        int chunkNo = header.getChunkNo();
+
+        //Se for o Peer initiator, tem no hashmap o par <fileId, chunkNo>
+        if(Peer.containsKeyValue(fileId, chunkNo))
+            Peer.incrementsReplicationDegree(fileId, chunkNo);
+
     }
 }

@@ -1,15 +1,12 @@
 package channels;
 
-import messages.DecomposeHeader;
 import messages.DecomposeMessage;
 import requests.Handler;
-import server.Peer;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
-import java.util.Queue;
 
 /**
  * Created by iamgroot on 27/03/17.
@@ -58,7 +55,6 @@ public class Channel implements Runnable{
 
                 DecomposeMessage message = new DecomposeMessage(packet);
 
-                //TODO: not sure about this implementation
                 handler.addRequest(message);
 
             }
@@ -68,7 +64,6 @@ public class Channel implements Runnable{
         }
 
         //TODO:close socket(se der) - para diminuir gastos de mem
-
     }
 
     public InetAddress getAddress() {

@@ -22,6 +22,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.server.ExportException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Peer implements Interface{
 
@@ -44,6 +45,10 @@ public class Peer implements Interface{
     private static MC mc;
     private static MDB mdb;
     private static MDR mdr;
+
+    //To store replicationDegree associated with each <fileId, chunkNo>
+    //Key - Value
+    private static HashMap<PeerDatabase, Integer> informationStored = new HashMap<>();
 
 
     public static void main(String args[]) throws IOException {
@@ -75,7 +80,8 @@ public class Peer implements Interface{
 
         protocol_version = args[0];
         server_id = Integer.parseInt(args[1]);
-        path = "/home/catarina/Desktop/BackUp/" + server_id + "/";
+        path = "/home/catarina/Desktop/BackUp/peer" + server_id + "/";
+        //path = "./BackUp/peer" + server_id + "/";
         peer_ap = args[2];
 
         mcAddress = InetAddress.getByName(args[3]);
@@ -149,17 +155,44 @@ public class Peer implements Interface{
         size_occupied += size;
     }
 
+    public static HashMap<PeerDatabase, Integer> getInformationStored() { return informationStored; }
+
+    public static void addToInformationStored(String fileId, int chunkNo){
+
+        informationStored.put(new PeerDatabase(fileId, chunkNo), 0);
+    }
+
+    public static boolean containsKeyValue(String fileId, int chunkNo){
+
+        PeerDatabase database = new PeerDatabase(fileId, chunkNo);
+        return informationStored.containsKey(database);
+    }
+
+    public static void incrementsReplicationDegree(String fileId, int chunkNo){
+
+        PeerDatabase database = new PeerDatabase(fileId, chunkNo);
+        int value = informationStored.get(database) + 1;
+        informationStored.put(database, value);
+    }
+
+    public static void decreasesReplicationDegree(String fileId, int chunkNo){
+
+        PeerDatabase database = new PeerDatabase(fileId, chunkNo);
+        int value = informationStored.get(database) - 1;
+        informationStored.replace(database,value);
+    }
+
 
     @Override
-    public void backup(File file, int replicationDeg) throws IOException {
+    public void backup(File file, int replicationDeg) throws IOException, InterruptedException {
 
         FileManager fileManager = new FileManager(file, replicationDeg);
         ArrayList<Chunk> chunksToBackup = fileManager.divideFileInChunks();
 
-        for (int i = 0; i< chunksToBackup.size(); i++){
+        for (int i = 0; i< chunksToBackup.size(); i++) {
+
             BackupProtocol.sendPutchunkMessage(chunksToBackup.get(i));
         }
-
     }
 
     @Override
