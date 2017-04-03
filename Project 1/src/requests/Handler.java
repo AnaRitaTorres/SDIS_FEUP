@@ -75,7 +75,7 @@ public class Handler {
             Peer.updateOccupiedSize(body.length);
 
             //saves file
-            FileManager.saveFile(body, chunkNo, Peer.getPath());
+            FileManager.saveFile(body, fileId, chunkNo);
 
             BackupProtocol.sendStoredMessage(fileId, chunkNo);
 
@@ -90,9 +90,8 @@ public class Handler {
         int chunkNo = header.getChunkNo();
 
         //Se for o Peer initiator, tem no hashmap o par <fileId, chunkNo>
-        if(Peer.containsKeyValue(fileId, chunkNo)){
-            System.out.println("Recebi Stored");
+        if(Peer.containsKeyValue(fileId, chunkNo))
             Peer.incrementsReplicationDegree(fileId, chunkNo);
-        }
+
     }
 }

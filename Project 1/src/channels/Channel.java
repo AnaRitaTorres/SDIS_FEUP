@@ -1,15 +1,12 @@
 package channels;
 
-import messages.DecomposeHeader;
 import messages.DecomposeMessage;
 import requests.Handler;
-import server.Peer;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
-import java.util.Queue;
 
 /**
  * Created by iamgroot on 27/03/17.

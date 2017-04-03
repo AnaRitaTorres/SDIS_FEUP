@@ -108,17 +108,18 @@ public class FileManager {
         return chunks;
     }
 
-    public static void saveFile(byte[] body, int chunkNo, String peerPath) throws IOException {
+    public static void saveFile(byte[] body, String fileId, int chunkNo) throws IOException {
 
-        Path path = Paths.get(Peer.getPath());
+        String savePath = Peer.getPath() + fileId + "/";
+        Path path = Paths.get(savePath);
 
         //If path doesn't exist
-        File file = new File(peerPath + chunkNo);
+        File file = new File(savePath + chunkNo);
         if (!Files.exists(path)){
             file.getParentFile().mkdirs();
         }
 
-        FileOutputStream output = new FileOutputStream(new File(peerPath + chunkNo));
+        FileOutputStream output = new FileOutputStream(new File(savePath + chunkNo));
         output.write(body);
     }
 }
