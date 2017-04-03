@@ -22,8 +22,6 @@ public class BackupProtocol{
 
         String message = messageTest.convertPutchunkMessageToString();
 
-        System.out.println(message);
-
         byte[] buf = message.getBytes();
         DatagramPacket packet = new DatagramPacket(buf, buf.length, Peer.getMdb().getAddress(), Peer.getMdb().getPort_number());
 
@@ -39,7 +37,6 @@ public class BackupProtocol{
         byte[] buf = message.getBytes();
         DatagramPacket packet = new DatagramPacket(buf, buf.length, Peer.getMc().getAddress(), Peer.getMc().getPort_number());
 
-        System.out.println(Peer.getOccupiedSize());
     }
 
 }

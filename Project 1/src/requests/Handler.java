@@ -5,16 +5,8 @@ import messages.DecomposeHeader;
 import messages.DecomposeMessage;
 import protocols.BackupProtocol;
 import server.Peer;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.LinkedList;
-import java.util.PriorityQueue;
 import java.util.Queue;
 
 /**
@@ -45,6 +37,7 @@ public class Handler {
 
         DecomposeMessage messageToHandle = requestsToHandle.peek();
         DecomposeHeader header = new DecomposeHeader(messageToHandle.getHeader());
+        System.out.println("Message: " + header.getChunkNo());
 
         //Peer ignores its own requests
         if (header.getSenderId() != Peer.getServerId()){
@@ -58,11 +51,17 @@ public class Handler {
                 case STORED:
                     break;
             }
+            removeRequest();
+        }
+        else{
+            //Removes own request to avoid useless loop
+            removeRequest();
         }
     }
 
     public void handlePutchunk(DecomposeMessage messageToHandle) throws IOException {
 
+        //TODO: ter o ciclo
         byte[] body = messageToHandle.getBody();
         DecomposeHeader header = new DecomposeHeader(messageToHandle.getHeader());
 
@@ -82,5 +81,4 @@ public class Handler {
 
         }
     }
-
 }
