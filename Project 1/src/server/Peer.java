@@ -48,7 +48,7 @@ public class Peer implements Interface{
 
     //To store replicationDegree associated with each <fileId, chunkNo>
     //Key - Value
-    public static HashMap<PeerDatabase, Integer> informationStored = new HashMap<>();
+    private static HashMap<PeerDatabase, Integer> informationStored = new HashMap<>();
 
 
     public static void main(String args[]) throws IOException {
@@ -154,6 +154,8 @@ public class Peer implements Interface{
         size_occupied += size;
     }
 
+    public static HashMap<PeerDatabase, Integer> getInformationStored() { return informationStored; }
+
     public static void addToInformationStored(String fileId, int chunkNo){
 
         informationStored.put(new PeerDatabase(fileId, chunkNo), 0);
@@ -181,7 +183,7 @@ public class Peer implements Interface{
 
 
     @Override
-    public void backup(File file, int replicationDeg) throws IOException {
+    public void backup(File file, int replicationDeg) throws IOException, InterruptedException {
 
         FileManager fileManager = new FileManager(file, replicationDeg);
         ArrayList<Chunk> chunksToBackup = fileManager.divideFileInChunks();

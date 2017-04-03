@@ -5,7 +5,6 @@ import messages.DecomposeHeader;
 import messages.DecomposeMessage;
 import protocols.BackupProtocol;
 import server.Peer;
-import server.PeerDatabase;
 
 import java.io.IOException;
 import java.util.LinkedList;
@@ -48,7 +47,6 @@ public class Handler {
                 case PUTCHUNK:
                     handlePutchunk(messageToHandle);
                     break;
-                //TODO: guardar o grau de replica algures...
                 case STORED:
                     handleStored(messageToHandle);
                     break;
@@ -93,6 +91,7 @@ public class Handler {
 
         //Se for o Peer initiator, tem no hashmap o par <fileId, chunkNo>
         if(Peer.containsKeyValue(fileId, chunkNo)){
+            System.out.println("Recebi Stored");
             Peer.incrementsReplicationDegree(fileId, chunkNo);
         }
     }

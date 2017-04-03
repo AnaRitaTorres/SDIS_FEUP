@@ -58,7 +58,6 @@ public class Channel implements Runnable{
 
                 DecomposeMessage message = new DecomposeMessage(packet);
 
-                //TODO: not sure about this implementation
                 handler.addRequest(message);
 
             }
