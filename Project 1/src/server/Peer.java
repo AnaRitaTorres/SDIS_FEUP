@@ -22,6 +22,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.server.ExportException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Peer implements Interface{
 
@@ -44,6 +45,10 @@ public class Peer implements Interface{
     private static MC mc;
     private static MDB mdb;
     private static MDR mdr;
+
+    //To store replicationDegree associated with each <fileId, chunkNo>
+    //Key - Value
+    static HashMap<PeerDatabase, Integer> informationStored = new HashMap<>();
 
 
     public static void main(String args[]) throws IOException {
@@ -149,6 +154,17 @@ public class Peer implements Interface{
         size_occupied += size;
     }
 
+    public static void addToInformationStored(String fileId, int chunkNo){
+
+        informationStored.put(new PeerDatabase(fileId, chunkNo), 0);
+    }
+
+    public static boolean containsKeyValue(String fileId, int chunkNo){
+
+        PeerDatabase database = new PeerDatabase(fileId, chunkNo);
+        return informationStored.containsKey(database);
+    }
+
 
     @Override
     public void backup(File file, int replicationDeg) throws IOException {
@@ -159,7 +175,6 @@ public class Peer implements Interface{
         for (int i = 0; i< chunksToBackup.size(); i++){
             BackupProtocol.sendPutchunkMessage(chunksToBackup.get(i));
         }
-
     }
 
     @Override

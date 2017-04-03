@@ -25,6 +25,12 @@ public class BackupProtocol{
         byte[] buf = message.getBytes();
         DatagramPacket packet = new DatagramPacket(buf, buf.length, Peer.getMdb().getAddress(), Peer.getMdb().getPort_number());
 
+        //Adds pair <fileId, chunkNo> to Peer.informationStored;
+        if(!Peer.containsKeyValue(chunk.getFileId(), chunk.getChunkNo()))
+            Peer.addToInformationStored(chunk.getFileId(), chunk.getChunkNo());
+
+
+        //Manda mensagem para canal de backup
         Peer.getMdb().getSocket().send(packet);
     }
 

@@ -81,4 +81,12 @@ public class Handler {
 
         }
     }
+
+    public void handleStores(DecomposeMessage messageToHandle) throws IOException{
+
+        byte[] body = messageToHandle.getBody();
+        DecomposeHeader header = new DecomposeHeader(messageToHandle.getHeader());
+
+
+    }
 }
