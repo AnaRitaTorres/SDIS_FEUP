@@ -5,8 +5,10 @@ import messages.DecomposeHeader;
 import messages.DecomposeMessage;
 import protocols.BackupProtocol;
 import server.Peer;
+import server.PeerDatabase;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -92,6 +94,21 @@ public class Handler {
         //Se for o Peer initiator, tem no hashmap o par <fileId, chunkNo>
         if(Peer.containsKeyValue(fileId, chunkNo))
             Peer.incrementsReplicationDegree(fileId, chunkNo);
+
+    }
+
+    public void handleDelete(DecomposeMessage messageToHandle) throws  IOException{
+       DecomposeHeader header = new DecomposeHeader(messageToHandle.getHeader());
+
+        String fileId = header.getFileId();
+
+       //TODO:eliminar os chunks com este fileID dos stored
+        HashMap<PeerDatabase, Integer> informationStored = Peer.getInformationStored();
+        PeerDatabase peer = new PeerDatabase(fileId);
+        if (informationStored.containsValue(peer)){
+            informationStored.remove(peer);
+        }
+
 
     }
 }

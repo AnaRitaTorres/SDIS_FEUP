@@ -27,6 +27,7 @@ public class DecomposeMessage {
 
 
         byte[] message = packet.getData();
+
         int i;
 
         for(i=3; i < message.length; i++){
@@ -35,9 +36,9 @@ public class DecomposeMessage {
             }
         }
 
-        header = copyOfRange(message,0, i-2);
+        header = copyOfRange(message,0, i-3);
         //TODO: está a guardar mais bytes do que o suposto... WHY??
-        body = copyOfRange(message,i+1,message.length-1);
+        body = copyOfRange(message,header.length + 4,message.length);
     }
 
 

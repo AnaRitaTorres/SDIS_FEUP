@@ -80,7 +80,7 @@ public class Peer implements Interface{
 
         protocol_version = args[0];
         server_id = Integer.parseInt(args[1]);
-        path = "/home/catarina/Desktop/BackUp/peer" + server_id + "/";
+        path = "/home/iamgroot/Desktop/BackUp/peer" + server_id + "/";
         //path = "./BackUp/peer" + server_id + "/";
         peer_ap = args[2];
 

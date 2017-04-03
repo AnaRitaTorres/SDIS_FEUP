@@ -30,7 +30,7 @@ public class FileManager {
 
         this.file = file;
         this.fileId = generateFileId();
-        this.path = "/home/catarina/Desktop/BackUp/" + file.getName();
+        this.path = "/home/iamgroot/Desktop/BackUp/" + file.getName();
         this.replicationDeg = replicationDeg;
 
     }
