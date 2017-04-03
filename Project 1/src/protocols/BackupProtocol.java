@@ -29,7 +29,6 @@ public class BackupProtocol{
         if(!Peer.containsKeyValue(chunk.getFileId(), chunk.getChunkNo()))
             Peer.addToInformationStored(chunk.getFileId(), chunk.getChunkNo());
 
-
         //Manda mensagem para canal de backup
         Peer.getMdb().getSocket().send(packet);
     }
@@ -43,6 +42,7 @@ public class BackupProtocol{
         byte[] buf = message.getBytes();
         DatagramPacket packet = new DatagramPacket(buf, buf.length, Peer.getMc().getAddress(), Peer.getMc().getPort_number());
 
+        Peer.getMc().getSocket().send(packet);
     }
 
 }

@@ -34,11 +34,16 @@ public class PeerDatabase {
 
         PeerDatabase info = (PeerDatabase) obj;
 
-        return (info.fileId == fileId && info.chunkNo == chunkNo);
+        return Objects.equals(fileId, info.fileId) && info.chunkNo == chunkNo;
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(chunkNo, fileId);
+    }
+
+    @Override
+    public String toString(){
+        return fileId + " " + chunkNo;
     }
 }

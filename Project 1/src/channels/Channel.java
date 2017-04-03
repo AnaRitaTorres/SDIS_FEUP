@@ -68,7 +68,6 @@ public class Channel implements Runnable{
         }
 
         //TODO:close socket(se der) - para diminuir gastos de mem
-
     }
 
     public InetAddress getAddress() {
