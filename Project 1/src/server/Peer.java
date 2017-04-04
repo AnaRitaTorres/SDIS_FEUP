@@ -10,6 +10,7 @@ import chunk.Chunk;
 import client.Interface;
 import fileManager.FileManager;
 import protocols.BackupProtocol;
+import protocols.DeleteProtocol;
 
 import java.io.File;
 import java.io.IOException;
@@ -196,6 +197,12 @@ public class Peer implements Interface{
     }
 
     @Override
+    public void delete(File file) throws IOException{
+        FileManager fM = new FileManager(file);
+        DeleteProtocol.sendDeleteMessage(fM.getFileId());
+    }
+
+    @Override
     public void exit() throws RemoteException {
         try {
             // Unregister the RMI
@@ -210,7 +217,6 @@ public class Peer implements Interface{
         }
     }
 
-    public void delete(String peer_ap, File file){}
     public void restore(String peer_ap, File file){}
     public void reclaim(String peer_ap, int reclaimed_space){}
     public void state(){}

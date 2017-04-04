@@ -16,6 +16,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+
 /**
  * Created by iamgroot on 27/03/17.
  */
@@ -23,16 +24,18 @@ public class FileManager {
 
     private File file;
     private String fileId;
-    private String path;
     private int replicationDeg;
 
     public FileManager(File file, int replicationDeg) {
 
         this.file = file;
         this.fileId = generateFileId();
-        this.path = "/home/iamgroot/Desktop/BackUp/" + file.getName();
         this.replicationDeg = replicationDeg;
+    }
 
+    public FileManager(File file){
+        this.file = file;
+        this.fileId = generateFileId();
     }
 
     public File getFile() {
@@ -121,5 +124,12 @@ public class FileManager {
 
         FileOutputStream output = new FileOutputStream(new File(savePath + chunkNo));
         output.write(body);
+    }
+
+    public static void deleteFile(String fileId){
+
+        String path = Peer.getPath() + fileId;
+        File file = new File(path);
+        file.delete();
     }
 }

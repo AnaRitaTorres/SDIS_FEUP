@@ -42,7 +42,7 @@ public class ComposeMessage {
     }
 
     public String convertMessageToStringWithoutBody(){
-        return header.convertHeaderToString() + CRLF;
+          return header.convertHeaderToString() + CRLF;
     }
 
     public String convertDeleteMessageToString(){

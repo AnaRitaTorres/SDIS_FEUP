@@ -52,6 +52,9 @@ public class Handler {
                 case STORED:
                     handleStored(messageToHandle);
                     break;
+                case DELETE:
+                    handleDelete(messageToHandle);
+                    break;
             }
             removeRequest();
         }
@@ -101,13 +104,13 @@ public class Handler {
        DecomposeHeader header = new DecomposeHeader(messageToHandle.getHeader());
 
         String fileId = header.getFileId();
+        System.out.println(fileId);
+        //TODO: eliminar ficheiro
+        FileManager.deleteFile(fileId);
 
        //TODO:eliminar os chunks com este fileID dos stored
-        HashMap<PeerDatabase, Integer> informationStored = Peer.getInformationStored();
-        PeerDatabase peer = new PeerDatabase(fileId);
-        if (informationStored.containsValue(peer)){
-            informationStored.remove(peer);
-        }
+
+
 
 
     }

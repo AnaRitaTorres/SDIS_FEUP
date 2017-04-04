@@ -45,7 +45,7 @@ public class TestApp {
                     break;
 
                 case "DELETE":
-                    rmi.delete(peer_ap, file);
+                    rmi.delete(file);
                     break;
 
                 case "RECLAIM":

@@ -15,10 +15,6 @@ public class PeerDatabase {
         this.chunkNo = chunkNo;
     }
 
-    public PeerDatabase (String fileId){
-        this.fileId=fileId;
-    }
-
     public String getFileId() {
         return fileId;
     }
