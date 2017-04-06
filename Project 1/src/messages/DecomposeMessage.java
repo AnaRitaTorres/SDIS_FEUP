@@ -37,12 +37,13 @@ public class DecomposeMessage {
         }
 
         header = copyOfRange(message,0, i-3);
-        //TODO: está a guardar mais bytes do que o suposto... WHY??
-        body = copyOfRange(message,header.length + 4,message.length);
+
+        for (;i<message.length; i++){
+            if (message[i] == '\u0000')
+                break;
+        }
+
+        body = copyOfRange(message,header.length + 4, i);
     }
-
-
-
-
 
 }
