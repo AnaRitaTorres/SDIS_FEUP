@@ -15,10 +15,4 @@ public class MC extends Channel{
         super(port_number,address);
     }
 
-    //TODO: start thread
-    //TODO: confirm stored chunks
-    //TODO: get chunks
-    //TODO: delete chunks
-    //TODO: removed chunks
-
 }

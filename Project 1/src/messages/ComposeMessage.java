@@ -1,7 +1,10 @@
 package messages;
 
+import javax.xml.bind.DatatypeConverter;
 import java.io.ByteArrayInputStream;
 import java.net.DatagramPacket;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Created by iamgroot on 25/03/17.
@@ -33,20 +36,48 @@ public class ComposeMessage {
         this.body=null;
     }
 
-    public String convertPutchunkMessageToString(){
-        return header.convertPutchunkHeaderToString() + CRLF + body.toString();
+    public byte[] convertPutchunkMessageToByteArray(){
+        byte[] buf = header.convertPutchunkHeaderToString().getBytes();
+        byte[] crfl = CRLF.getBytes();
+        byte[] message = new byte[buf.length + crfl.length + body.length];
+
+        System.arraycopy(buf, 0, message, 0, buf.length);
+        System.arraycopy(crfl, 0, message, buf.length, crfl.length);
+        System.arraycopy(body, 0, message, buf.length + crfl.length, body.length);
+
+        return message;
     }
 
-    public String convertMessageToString(){
-        return header.convertHeaderToString() + CRLF + body.toString();
+    public byte[] convertMessageToByteArray(){
+
+        byte[] buf = header.convertHeaderToString().getBytes();
+        byte[] crfl = CRLF.getBytes();
+        byte[] message = new byte[buf.length + crfl.length + body.length];
+
+        System.arraycopy(buf, 0, message, 0, buf.length);
+        System.arraycopy(crfl, 0, message, buf.length, crfl.length);
+        System.arraycopy(body, 0, message, buf.length + crfl.length, body.length);
+
+        return message;
     }
 
     public String convertMessageToStringWithoutBody(){
-          return header.convertHeaderToString() + CRLF;
+        return header.convertHeaderToString() + CRLF;
     }
 
-    public String convertDeleteMessageToString(){
-        return header.convertDeleteHeaderToString() + CRLF + body.toString();
+    public byte[] convertDeleteMessageToByteArray(){
+
+        //TODO: criar função para não repetir código
+
+        byte[] buf = header.convertDeleteHeaderToString().getBytes();
+        byte[] crfl = CRLF.getBytes();
+        byte[] message = new byte[buf.length + crfl.length + body.length];
+
+        System.arraycopy(buf, 0, message, 0, buf.length);
+        System.arraycopy(crfl, 0, message, buf.length, crfl.length);
+        System.arraycopy(body, 0, message, buf.length + crfl.length, body.length);
+
+        return message;
     }
 
 }

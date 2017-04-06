@@ -90,25 +90,24 @@ public class Handler {
     public void handleStored(DecomposeMessage messageToHandle) throws IOException{
         byte[] body = messageToHandle.getBody();
         DecomposeHeader header = new DecomposeHeader(messageToHandle.getHeader());
-
         String fileId = header.getFileId();
         int chunkNo = header.getChunkNo();
 
         //Se for o Peer initiator, tem no hashmap o par <fileId, chunkNo>
         if(Peer.containsKeyValue(fileId, chunkNo))
             Peer.incrementsReplicationDegree(fileId, chunkNo);
-
     }
 
     public void handleDelete(DecomposeMessage messageToHandle) throws  IOException{
+        System.out.println(Peer.getInformationStored().toString());
        DecomposeHeader header = new DecomposeHeader(messageToHandle.getHeader());
 
         String fileId = header.getFileId();
-        System.out.println(fileId);
         //TODO: eliminar ficheiro
         FileManager.deleteFile(fileId);
 
        //TODO:eliminar os chunks com este fileID dos stored
+
 
 
 

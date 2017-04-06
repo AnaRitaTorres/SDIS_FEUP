@@ -12,7 +12,4 @@ public class MDR extends Channel {
     public MDR(int port_number, InetAddress address){
         super(port_number,address);
     }
-    //TODO: start thread
-    //TODO: confirm stored chunks
-    //TODO:chunks
 }

@@ -2,6 +2,7 @@ package channels;
 
 import messages.DecomposeMessage;
 import requests.Handler;
+import server.Peer;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -47,8 +48,9 @@ public class Channel implements Runnable{
         while(true){
 
             try {
-                handler.handleRequests();
 
+                handler.handleRequests();
+                
                 //creates packet for reception
                 packet = new DatagramPacket(buf, buf.length);
                 socket.receive(packet);

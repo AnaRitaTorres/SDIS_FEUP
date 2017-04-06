@@ -1,5 +1,7 @@
 package messages;
 
+import server.Peer;
+
 import static messages.HeaderComponents.*;
 
 /**
@@ -13,8 +15,10 @@ public class DecomposeHeader {
     private String fileId;
     private int chunkNo;
     private int replicationDeg;
+    public int i =0;
 
     public DecomposeHeader(byte[] header){
+
 
         String h = new String(header).trim();
         String[] headerComponents = h.split("[ ]+");

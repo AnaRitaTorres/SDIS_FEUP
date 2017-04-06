@@ -1,5 +1,6 @@
 package server;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /**

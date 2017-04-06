@@ -126,7 +126,7 @@ public class FileManager {
         output.write(body);
     }
 
-    public static void deleteFile(String fileId){
+    public static void deleteFile(String fileId) {
 
         String path = Peer.getPath() + fileId;
         File file = new File(path);
