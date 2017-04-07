@@ -1,6 +1,7 @@
 package server;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Objects;
 
 /**
@@ -8,19 +9,19 @@ import java.util.Objects;
  */
 public class PeerDatabase {
 
-    private String fileId;
-    private int chunkNo;
+    private static String fileId;
+    private static int chunkNo;
 
     public PeerDatabase(String fileId, int chunkNo){
         this.fileId = fileId;
         this.chunkNo = chunkNo;
     }
 
-    public String getFileId() {
+    public static String getFileId() {
         return fileId;
     }
 
-    public int getChunkNo() {
+    public static int getChunkNo() {
         return chunkNo;
     }
 
@@ -37,6 +38,7 @@ public class PeerDatabase {
 
         return Objects.equals(fileId, info.fileId) && info.chunkNo == chunkNo;
     }
+
 
     @Override
     public int hashCode() {

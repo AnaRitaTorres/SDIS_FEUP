@@ -11,6 +11,7 @@ import client.Interface;
 import fileManager.FileManager;
 import protocols.BackupProtocol;
 import protocols.DeleteProtocol;
+import protocols.ReclaimProtocol;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,6 +25,7 @@ import java.rmi.server.ExportException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 public class Peer implements Interface{
 
@@ -32,6 +34,8 @@ public class Peer implements Interface{
     private static String protocol_version;
     private static int server_id;
     private static int max_size_to_save = 5000000;
+    private static int reclaimed_space;
+    private static int replication_degree;
     private static int size_occupied = 0;
     private static String path;
 
@@ -50,7 +54,6 @@ public class Peer implements Interface{
     //To store replicationDegree associated with each <fileId, chunkNo>
     //Key - Value
     private static HashMap<PeerDatabase, Integer> informationStored = new HashMap<>();
-
 
     public static void main(String args[]) throws IOException {
 
@@ -176,17 +179,31 @@ public class Peer implements Interface{
         informationStored.put(database, value);
     }
 
-    public static void decreasesReplicationDegree(String fileId, int chunkNo){
+    public static void decreasesStoredRepDegree(String fileId, int chunkNo){
 
         PeerDatabase database = new PeerDatabase(fileId, chunkNo);
         int value = informationStored.get(database) - 1;
         informationStored.replace(database,value);
     }
 
+    public static int getStoredRepDegree(String fileId, int chunkNo){
+
+        return informationStored.get(new PeerDatabase(fileId,chunkNo));
+    }
+
+    public static PeerDatabase getKeyFromValue(HashMap<PeerDatabase,Integer> hm, Integer value) {
+        for (PeerDatabase o : hm.keySet()) {
+            if (hm.get(o).equals(value)) {
+                return o;
+            }
+        }
+        return null;
+    }
 
     @Override
     public void backup(File file, int replicationDeg) throws IOException, InterruptedException {
 
+        this.replication_degree = replicationDeg;
         FileManager fileManager = new FileManager(file, replicationDeg);
         ArrayList<Chunk> chunksToBackup = fileManager.divideFileInChunks();
 
@@ -200,6 +217,24 @@ public class Peer implements Interface{
     public void delete(File file) throws IOException{
         FileManager fM = new FileManager(file);
         DeleteProtocol.sendDeleteMessage(fM.getFileId());
+    }
+
+    @Override
+    public void reclaim(int reclaimed_space)throws IOException{
+
+        this.reclaimed_space = reclaimed_space;
+        HashMap<PeerDatabase, Integer> informationReclaimed = getInformationStored();
+
+        for (int i = 0; i< informationReclaimed.size(); i++) {
+
+            PeerDatabase database = getKeyFromValue(informationReclaimed,i);
+            String fileID = database.getFileId();
+            int chunkNo = database.getChunkNo();
+            ReclaimProtocol.sendRemovedMessage(fileID,chunkNo);
+        }
+
+
+
     }
 
     @Override
@@ -218,6 +253,6 @@ public class Peer implements Interface{
     }
 
     public void restore(String peer_ap, File file){}
-    public void reclaim(String peer_ap, int reclaimed_space){}
+
     public void state(){}
 }

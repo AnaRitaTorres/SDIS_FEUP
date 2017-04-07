@@ -49,7 +49,7 @@ public class TestApp {
                     break;
 
                 case "RECLAIM":
-                    rmi.reclaim(peer_ap, reclaimed_space);
+                    rmi.reclaim(reclaimed_space);
                     break;
 
             }
@@ -143,4 +143,3 @@ public class TestApp {
         return true;
     }
 }
-

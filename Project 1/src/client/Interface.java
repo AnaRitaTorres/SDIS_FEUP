@@ -11,9 +11,9 @@ import java.rmi.RemoteException;
 
 public interface Interface extends Remote {
     void backup(File file, int replicationDeg) throws IOException, InterruptedException;
-    void delete(File file) throws IOException,RemoteException;
+    void delete(File file) throws IOException;
     void restore(String peer_ap, File file) throws RemoteException;
-    void reclaim(String peer_ap, int reclaimed_space) throws RemoteException;
+    void reclaim(int reclaimed_space) throws IOException;
     void state() throws RemoteException;
     void exit() throws RemoteException;
 }
