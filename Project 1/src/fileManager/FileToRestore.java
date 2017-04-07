@@ -1,11 +1,7 @@
 package fileManager;
 
-import server.Peer;
-
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
+import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -26,14 +22,20 @@ public class FileToRestore {
         this.filename = filename;
         this.numChunks = numChunks;
         chunks = new Vector<>();
+        chunks.setSize(numChunks+1);
     }
 
     public String getFileId(){
         return fileId;
     }
 
-    public void addToVector(byte[] chunk, int position){
-        chunks.add(position, chunk);
+    public Vector<byte[]> getChunks(){
+        return chunks;
+    }
+
+    public void changePositionInVector(byte[] chunk, int position){
+        if (chunks.get(position) == null)
+            chunks.set(position, chunk);
     }
 
     public boolean freePosition(int position){
@@ -45,8 +47,8 @@ public class FileToRestore {
 
     public boolean filledVector(){
 
-        for(int i=1; i<=numChunks; i++){
-            if (chunks.elementAt(i) == null)
+        for (int i=1; i<=numChunks; i++){
+            if (chunks.get(i) == null)
                 return false;
         }
         return true;
@@ -54,6 +56,8 @@ public class FileToRestore {
 
     public byte[] mergeChunks(){
 
+        chunks.remove(0);
+        System.out.println(chunks);
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         for (byte[] b : chunks) {
             os.write(b, 0, b.length);
@@ -76,5 +80,6 @@ public class FileToRestore {
 
         FileOutputStream output = new FileOutputStream(new File(savePath));
         output.write(body);
+        output.close();
     }
 }

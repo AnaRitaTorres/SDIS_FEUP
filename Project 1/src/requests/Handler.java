@@ -80,6 +80,7 @@ public class Handler {
 
     public void handlePutchunk(DecomposeMessage messageToHandle) throws IOException {
 
+        //TODO: está a receber o body do primeiro putchunk... what??
         byte[] body = messageToHandle.getBody();
         DecomposeHeader header = new DecomposeHeader(messageToHandle.getHeader());
 
@@ -96,7 +97,6 @@ public class Handler {
             FileManager.saveFile(body, fileId, chunkNo);
 
             BackupProtocol.sendStoredMessage(fileId, chunkNo);
-
         }
     }
 
@@ -127,11 +127,18 @@ public class Handler {
         int chunkNo = header.getChunkNo();
 
         String pathString = Peer.getPath() + fileId + "/" + chunkNo;
+        System.out.println(pathString);
+
+        File file = new File(pathString);
         Path path = Paths.get(pathString);
 
-        byte[] body = Files.readAllBytes(path);
-
-        RestoreProtocol.sendChunkMessage(fileId, chunkNo, body);
+        if (file.exists()) {
+            byte[] body = Files.readAllBytes(path);
+            RestoreProtocol.sendChunkMessage(fileId, chunkNo, body);
+        }
+        else{
+            System.err.println("Não existe ficheiro");;
+        }
     }
 
     //TODO: falta juntar depois os ficheiros recebidos no handleChunk
@@ -147,19 +154,14 @@ public class Handler {
         int position = hasElement(fileId);
 
         if (position != -1) {
-            System.out.println("uiaa" + Peer.getFilesToRestore().elementAt(position));
-            if (Peer.getFilesToRestore().elementAt(position) == null) {
-                Peer.getFilesToRestore().elementAt(position).addToVector(body, chunkNo);
-                System.out.println("Adicionei");
-            }
+            if (!Peer.getFilesToRestore().contains(body))
+                Peer.getFilesToRestore().elementAt(position).changePositionInVector(body, chunkNo);
+
         }
 
         //Se vector estiver cheio
-        System.out.println("Vou verificar se estou cheio");
         if (Peer.getFilesToRestore().elementAt(position).filledVector()){
-            System.out.println("Estou gordinho");
             Peer.getFilesToRestore().elementAt(position).saveFile();
-            System.out.println("guardei gordinho");
         }
     }
 

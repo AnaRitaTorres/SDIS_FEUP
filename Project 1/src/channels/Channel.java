@@ -1,5 +1,6 @@
 package channels;
 
+import messages.DecomposeHeader;
 import messages.DecomposeMessage;
 import requests.Handler;
 import server.Peer;
@@ -48,7 +49,6 @@ public class Channel implements Runnable{
         while(true){
 
             try {
-
                 handler.handleRequests();
                 
                 //creates packet for reception
@@ -58,7 +58,6 @@ public class Channel implements Runnable{
                 DecomposeMessage message = new DecomposeMessage(packet);
 
                 handler.addRequest(message);
-
             }
             catch (IOException e) {
                 e.printStackTrace();

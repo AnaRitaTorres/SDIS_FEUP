@@ -100,6 +100,7 @@ public class Peer implements Interface{
     }
 
     public static void initializeRmi(){
+
         Peer peer = new Peer();
         try {
             Interface rmi = (Interface) UnicastRemoteObject.exportObject(peer, 0);
@@ -191,8 +192,10 @@ public class Peer implements Interface{
         FileManager fileManager = new FileManager(file, replicationDeg);
         ArrayList<Chunk> chunksToBackup = fileManager.divideFileInChunks();
 
-        for (int i = 0; i< chunksToBackup.size(); i++)
+        for (int i = 0; i< chunksToBackup.size(); i++) {
             BackupProtocol.sendPutchunkMessage(chunksToBackup.get(i));
+        }
+
     }
 
     @Override

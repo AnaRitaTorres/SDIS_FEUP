@@ -12,10 +12,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
-
 
 /**
  * Created by iamgroot on 27/03/17.
@@ -150,7 +148,6 @@ public class FileManager {
         else
             System.err.println("File doesn't exist.");
 
-        System.out.println("NumChunks: " + numChunks);
         return numChunks;
     }
 }

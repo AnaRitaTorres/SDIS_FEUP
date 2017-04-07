@@ -13,7 +13,6 @@ class client{
 
          //check num of args
          if(args.length < 3){
-            System.out.println("Wrong Number of Arguments");
             System.out.println("USAGE: java client <mcast_addr> <mcast_port> <oper> <opnd> * ");
             return;
          }
