@@ -41,7 +41,7 @@ public class TestApp {
                     break;
 
                 case "RESTORE":
-                    rmi.restore(peer_ap, file);
+                    rmi.restore(file);
                     break;
 
                 case "DELETE":
@@ -49,7 +49,7 @@ public class TestApp {
                     break;
 
                 case "RECLAIM":
-                    rmi.reclaim(peer_ap, reclaimed_space);
+                    rmi.reclaim(reclaimed_space);
                     break;
 
             }

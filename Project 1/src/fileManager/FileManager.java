@@ -22,9 +22,9 @@ import java.util.Arrays;
  */
 public class FileManager {
 
-    private File file;
-    private String fileId;
-    private int replicationDeg;
+    private static File file;
+    private static String fileId;
+    private static int replicationDeg;
 
     public FileManager(File file, int replicationDeg) {
 
@@ -50,7 +50,7 @@ public class FileManager {
         return replicationDeg;
     }
 
-    public String generateFileId() {
+    public static String generateFileId() {
 
         String fileID = null;
         try {
@@ -78,11 +78,7 @@ public class FileManager {
 
         long fileSize = file.length(); //filesize in byte
         long remainder = (int) fileSize % Chunk.MAX_SIZE;
-        long numChunks = fileSize / Chunk.MAX_SIZE;
-        if (remainder != 0) {
-            numChunks++;
-        }
-
+        long numChunks = getNumChunks(file);
         int chunkNo = 1;
 
         Path path = file.toPath();
@@ -130,6 +126,31 @@ public class FileManager {
 
         String path = Peer.getPath() + fileId;
         File file = new File(path);
-        file.delete();
+
+        if (file.exists()){
+            File[] files = file.listFiles();
+            if(files != null){
+                for (int i=0; i<files.length; i++)
+                    files[i].delete();
+            }
+            file.delete();
+        }
+    }
+
+    public static int getNumChunks(File file){
+
+        int numChunks = 0;
+
+        if (file.exists()){
+            numChunks = (int) file.length() / Chunk.MAX_SIZE;
+
+            if (file.length() % Chunk.MAX_SIZE != 0)
+                numChunks++;
+        }
+        else
+            System.err.println("File doesn't exist.");
+
+        System.out.println("NumChunks: " + numChunks);
+        return numChunks;
     }
 }

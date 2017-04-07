@@ -4,6 +4,7 @@ import chunk.Chunk;
 import messages.ComposeMessage;
 import messages.MessageType;
 import server.Peer;
+import server.PeerDatabase;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -23,5 +24,11 @@ public class DeleteProtocol {
         DatagramPacket packet = new DatagramPacket(buf, buf.length, Peer.getMc().getAddress(), Peer.getMc().getPort_number());
 
         Peer.getMc().getSocket().send(packet);
+
+        //Delete chunk from informationStored
+        for (PeerDatabase key : Peer.getInformationStored().keySet()) {
+            if (key.getFileId().equals(fileId))
+                Peer.getInformationStored().remove(key);
+        }
     }
 }

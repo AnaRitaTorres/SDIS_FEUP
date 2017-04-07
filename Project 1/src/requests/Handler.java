@@ -1,13 +1,21 @@
 package requests;
 
 import fileManager.FileManager;
+import fileManager.FileToRestore;
 import messages.DecomposeHeader;
 import messages.DecomposeMessage;
 import protocols.BackupProtocol;
+import protocols.RestoreProtocol;
 import server.Peer;
 import server.PeerDatabase;
 
+import javax.xml.bind.DatatypeConverter;
+import javax.xml.crypto.Data;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -55,6 +63,12 @@ public class Handler {
                 case DELETE:
                     handleDelete(messageToHandle);
                     break;
+                case GETCHUNK:
+                    handleGetchunk(messageToHandle);
+                    break;
+                case CHUNK:
+                    handleChunk(messageToHandle);
+                    break;
             }
             removeRequest();
         }
@@ -66,7 +80,6 @@ public class Handler {
 
     public void handlePutchunk(DecomposeMessage messageToHandle) throws IOException {
 
-        //TODO: ter o ciclo
         byte[] body = messageToHandle.getBody();
         DecomposeHeader header = new DecomposeHeader(messageToHandle.getHeader());
 
@@ -76,7 +89,7 @@ public class Handler {
             String fileId = header.getFileId();
             int chunkNo = header.getChunkNo();
 
-            //updtes occupied size
+            //updates occupied size
             Peer.updateOccupiedSize(body.length);
 
             //saves file
@@ -99,18 +112,63 @@ public class Handler {
     }
 
     public void handleDelete(DecomposeMessage messageToHandle) throws  IOException{
-        System.out.println(Peer.getInformationStored().toString());
-       DecomposeHeader header = new DecomposeHeader(messageToHandle.getHeader());
+
+        DecomposeHeader header = new DecomposeHeader(messageToHandle.getHeader());
 
         String fileId = header.getFileId();
-        //TODO: eliminar ficheiro
         FileManager.deleteFile(fileId);
+    }
 
-       //TODO:eliminar os chunks com este fileID dos stored
+    public void handleGetchunk(DecomposeMessage messageToHandle) throws IOException {
 
+        DecomposeHeader header = new DecomposeHeader(messageToHandle.getHeader());
 
+        String fileId = header.getFileId();
+        int chunkNo = header.getChunkNo();
 
+        String pathString = Peer.getPath() + fileId + "/" + chunkNo;
+        Path path = Paths.get(pathString);
 
+        byte[] body = Files.readAllBytes(path);
 
+        RestoreProtocol.sendChunkMessage(fileId, chunkNo, body);
+    }
+
+    //TODO: falta juntar depois os ficheiros recebidos no handleChunk
+    public void handleChunk(DecomposeMessage messageToHandle) throws IOException {
+
+        DecomposeHeader header = new DecomposeHeader(messageToHandle.getHeader());
+
+        //TODO: Ao reverter ficheiro, espera-se o nome original --> linha de comandos
+        String fileId = header.getFileId();
+        int chunkNo = header.getChunkNo();
+        byte[] body = messageToHandle.getBody();
+
+        int position = hasElement(fileId);
+
+        if (position != -1) {
+            System.out.println("uiaa" + Peer.getFilesToRestore().elementAt(position));
+            if (Peer.getFilesToRestore().elementAt(position) == null) {
+                Peer.getFilesToRestore().elementAt(position).addToVector(body, chunkNo);
+                System.out.println("Adicionei");
+            }
+        }
+
+        //Se vector estiver cheio
+        System.out.println("Vou verificar se estou cheio");
+        if (Peer.getFilesToRestore().elementAt(position).filledVector()){
+            System.out.println("Estou gordinho");
+            Peer.getFilesToRestore().elementAt(position).saveFile();
+            System.out.println("guardei gordinho");
+        }
+    }
+
+    public int hasElement(String fileId){
+        for (int i=0; i<Peer.getFilesToRestore().size(); i++){
+            //Se existir
+            if (Peer.getFilesToRestore().elementAt(i).getFileId().equals(fileId))
+                return i;
+        }
+        return -1;
     }
 }
