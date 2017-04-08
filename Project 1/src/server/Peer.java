@@ -161,7 +161,6 @@ public class Peer implements Interface{
     @Override
     public void backup(File file, int replicationDeg) throws IOException, InterruptedException {
 
-        //TODO: adicionar copia local dos chunks com grau de replica
         FileManager fileManager = new FileManager(file, replicationDeg);
         ArrayList<Chunk> chunksToBackup = fileManager.divideFileInChunks();
 

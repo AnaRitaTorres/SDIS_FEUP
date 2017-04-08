@@ -75,7 +75,6 @@ public class Handler {
 
     public void handlePutchunk(DecomposeMessage messageToHandle) throws IOException {
 
-        //TODO: está a receber o body do primeiro putchunk... what??
         byte[] body = messageToHandle.getBody();
         DecomposeHeader header = new DecomposeHeader(messageToHandle.getHeader());
 
@@ -92,13 +91,16 @@ public class Handler {
             //saves file
             FileManager.saveFile(body, fileId, chunkNo);
 
-            Peer.getDatabase().addToStoredChunks(fileId, chunkNo, replicationDeg);
+            if (!Peer.getDatabase().addToStoredChunks(fileId, chunkNo, replicationDeg)){
+                Peer.getDatabase().incrementsStoredChunks(fileId, chunkNo, replicationDeg);
+            }
+
             BackupProtocol.sendStoredMessage(fileId, chunkNo);
         }
     }
 
     public void handleStored(DecomposeMessage messageToHandle) throws IOException{
-        byte[] body = messageToHandle.getBody();
+
         DecomposeHeader header = new DecomposeHeader(messageToHandle.getHeader());
         String fileId = header.getFileId();
         int chunkNo = header.getChunkNo();
@@ -106,6 +108,10 @@ public class Handler {
         //Se for o Peer initiator, tem no hashmap o par <fileId, chunkNo>
         if(Peer.getDatabase().containsKeyValue(fileId, chunkNo))
             Peer.getDatabase().incrementsReplicationDegree(fileId, chunkNo);
+
+        if (!Peer.getDatabase().addToStoredChunks(fileId, chunkNo)){
+            Peer.getDatabase().incrementsStoredChunks(fileId, chunkNo);
+        }
     }
 
     public void handleDelete(DecomposeMessage messageToHandle) throws  IOException{
