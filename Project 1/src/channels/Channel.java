@@ -1,9 +1,7 @@
 package channels;
 
-import messages.DecomposeHeader;
 import messages.DecomposeMessage;
 import requests.Handler;
-import server.Peer;
 
 import java.io.IOException;
 import java.net.DatagramPacket;

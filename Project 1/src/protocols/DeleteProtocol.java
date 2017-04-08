@@ -1,15 +1,13 @@
 package protocols;
 
-import chunk.Chunk;
 import messages.ComposeMessage;
 import messages.MessageType;
 import server.Peer;
-import server.PeerDatabase;
+import server.PeerInformation;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -28,16 +26,16 @@ public class DeleteProtocol {
 
         Peer.getMc().getSocket().send(packet);
 
-        Set<PeerDatabase> set= new HashSet();
+        Set<PeerInformation> set= new HashSet();
 
         //Delete chunk from informationStored
-        for (PeerDatabase key : Peer.getInformationStored().keySet()) {
+        for (PeerInformation key : Peer.getDatabase().getInformationStored().keySet()) {
 
             if (key.getFileId().equals(fileId))
                 set.add(key);
 
         }
 
-        Peer.getInformationStored().keySet().removeAll(set);
+        Peer.getDatabase().getInformationStored().keySet().removeAll(set);
     }
 }

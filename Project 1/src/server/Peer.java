@@ -8,8 +8,8 @@ import channels.MDB;
 import channels.MDR;
 import chunk.Chunk;
 import client.Interface;
+import database.PeerDatabase;
 import fileManager.FileManager;
-import fileManager.FileToRestore;
 import protocols.BackupProtocol;
 import protocols.DeleteProtocol;
 import protocols.RestoreProtocol;
@@ -25,8 +25,6 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.server.ExportException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Vector;
 
 public class Peer implements Interface{
 
@@ -50,11 +48,9 @@ public class Peer implements Interface{
     private static MDB mdb;
     private static MDR mdr;
 
-    //To store replicationDegree associated with each <fileId, chunkNo>
-    //Key - Value
-    private static HashMap<PeerDatabase, Integer> informationStored = new HashMap<>();
+    private static boolean use_enhancements;
 
-    private static Vector<FileToRestore> filesToRestore = new Vector<>();
+    private static PeerDatabase database = new PeerDatabase();
 
     public static void main(String args[]) throws IOException {
 
@@ -70,6 +66,7 @@ public class Peer implements Interface{
         new Thread(mdr).start();
 
         initializeRmi();
+
     }
 
     public static boolean validArguments(String[] args) throws UnknownHostException {
@@ -159,31 +156,7 @@ public class Peer implements Interface{
         size_occupied += size;
     }
 
-    public static HashMap<PeerDatabase, Integer> getInformationStored() { return informationStored; }
-
-    public static Vector<FileToRestore> getFilesToRestore(){ return filesToRestore; }
-
-    public static void addToInformationStored(String fileId, int chunkNo){
-        informationStored.put(new PeerDatabase(fileId, chunkNo), 0);
-    }
-
-    public static boolean containsKeyValue(String fileId, int chunkNo){
-        PeerDatabase database = new PeerDatabase(fileId, chunkNo);
-        return informationStored.containsKey(database);
-    }
-
-    public static void incrementsReplicationDegree(String fileId, int chunkNo){
-        PeerDatabase database = new PeerDatabase(fileId, chunkNo);
-        int value = informationStored.get(database) + 1;
-        informationStored.put(database, value);
-    }
-
-    public static void decreasesReplicationDegree(String fileId, int chunkNo){
-        PeerDatabase database = new PeerDatabase(fileId, chunkNo);
-        int value = informationStored.get(database) - 1;
-        informationStored.replace(database,value);
-    }
-
+    public static PeerDatabase getDatabase(){ return database; }
 
     @Override
     public void backup(File file, int replicationDeg) throws IOException, InterruptedException {

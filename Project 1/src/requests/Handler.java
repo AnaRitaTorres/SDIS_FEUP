@@ -1,22 +1,17 @@
 package requests;
 
 import fileManager.FileManager;
-import fileManager.FileToRestore;
 import messages.DecomposeHeader;
 import messages.DecomposeMessage;
 import protocols.BackupProtocol;
 import protocols.RestoreProtocol;
 import server.Peer;
-import server.PeerDatabase;
 
-import javax.xml.bind.DatatypeConverter;
-import javax.xml.crypto.Data;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -52,7 +47,7 @@ public class Handler {
         //Peer ignores its own requests
         if (header.getSenderId() != Peer.getServerId()){
 
-            //TODO: completar handler
+            //TODO: completar requests
             switch(header.getMessageType()){
                 case PUTCHUNK:
                     handlePutchunk(messageToHandle);
@@ -89,6 +84,7 @@ public class Handler {
 
             String fileId = header.getFileId();
             int chunkNo = header.getChunkNo();
+            int replicationDeg = header.getReplicationDeg();
 
             //updates occupied size
             Peer.updateOccupiedSize(body.length);
@@ -96,6 +92,7 @@ public class Handler {
             //saves file
             FileManager.saveFile(body, fileId, chunkNo);
 
+            Peer.getDatabase().addToStoredChunks(fileId, chunkNo, replicationDeg);
             BackupProtocol.sendStoredMessage(fileId, chunkNo);
         }
     }
@@ -107,8 +104,8 @@ public class Handler {
         int chunkNo = header.getChunkNo();
 
         //Se for o Peer initiator, tem no hashmap o par <fileId, chunkNo>
-        if(Peer.containsKeyValue(fileId, chunkNo))
-            Peer.incrementsReplicationDegree(fileId, chunkNo);
+        if(Peer.getDatabase().containsKeyValue(fileId, chunkNo))
+            Peer.getDatabase().incrementsReplicationDegree(fileId, chunkNo);
     }
 
     public void handleDelete(DecomposeMessage messageToHandle) throws  IOException{
@@ -154,21 +151,21 @@ public class Handler {
         int position = hasElement(fileId);
 
         if (position != -1) {
-            if (!Peer.getFilesToRestore().contains(body))
-                Peer.getFilesToRestore().elementAt(position).changePositionInVector(body, chunkNo-1);
+            if (!Peer.getDatabase().getFilesToRestore().contains(body))
+                Peer.getDatabase().getFilesToRestore().elementAt(position).changePositionInVector(body, chunkNo-1);
 
         }
 
         //Se vector estiver cheio
-        if (Peer.getFilesToRestore().elementAt(position).filledVector()){
-            Peer.getFilesToRestore().elementAt(position).saveFile();
+        if (Peer.getDatabase().getFilesToRestore().elementAt(position).filledVector()){
+            Peer.getDatabase().getFilesToRestore().elementAt(position).saveFile();
         }
     }
 
     public int hasElement(String fileId){
-        for (int i=0; i<Peer.getFilesToRestore().size(); i++){
+        for (int i=0; i<Peer.getDatabase().getFilesToRestore().size(); i++){
             //Se existir
-            if (Peer.getFilesToRestore().elementAt(i).getFileId().equals(fileId))
+            if (Peer.getDatabase().getFilesToRestore().elementAt(i).getFileId().equals(fileId))
                 return i;
         }
         return -1;

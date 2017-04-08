@@ -30,8 +30,8 @@ public class RestoreProtocol {
             if (chunkNo==1){
                 FileToRestore fileToRestore = new FileToRestore(fileId, filename, numChunks);
 
-                if(!Peer.getFilesToRestore().contains(fileToRestore))
-                    Peer.getFilesToRestore().add(fileToRestore);
+                if(!Peer.getDatabase().getFilesToRestore().contains(fileToRestore))
+                    Peer.getDatabase().getFilesToRestore().add(fileToRestore);
 
             }
 
@@ -48,8 +48,6 @@ public class RestoreProtocol {
         }
     }
 
-    //TODO: Not sure how to pass the arguments. See later
-    //TODO:rever a partir daqui
     public static void sendChunkMessage(String fileId, int chunkNo, byte[] body) throws IOException {
 
         int random = ThreadLocalRandom.current().nextInt(0, 400);
