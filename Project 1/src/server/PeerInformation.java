@@ -1,6 +1,5 @@
 package server;
 
-import java.io.Serializable;
 import java.util.Objects;
 
 /**
@@ -10,10 +9,17 @@ public class PeerDatabase {
 
     private String fileId;
     private int chunkNo;
+    private int replicationDeg;
 
     public PeerDatabase(String fileId, int chunkNo){
         this.fileId = fileId;
         this.chunkNo = chunkNo;
+    }
+
+    public PeerDatabase(String fileId, int chunkNo, int replicationDeg){
+        this.fileId = fileId;
+        this.chunkNo = chunkNo;
+        this.replicationDeg = replicationDeg;
     }
 
     public String getFileId() {
@@ -23,6 +29,8 @@ public class PeerDatabase {
     public int getChunkNo() {
         return chunkNo;
     }
+
+    public int getReplicationDeg() { return replicationDeg; }
 
     @Override
     public boolean equals(Object obj) {
