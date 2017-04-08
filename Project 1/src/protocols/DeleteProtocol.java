@@ -8,6 +8,9 @@ import server.PeerDatabase;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 /**
  * Created by iamgroot on 03/04/17.
@@ -25,10 +28,16 @@ public class DeleteProtocol {
 
         Peer.getMc().getSocket().send(packet);
 
+        Set<PeerDatabase> set= new HashSet();
+
         //Delete chunk from informationStored
         for (PeerDatabase key : Peer.getInformationStored().keySet()) {
+
             if (key.getFileId().equals(fileId))
-                Peer.getInformationStored().remove(key);
+                set.add(key);
+
         }
+
+        Peer.getInformationStored().keySet().removeAll(set);
     }
 }
