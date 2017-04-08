@@ -32,10 +32,8 @@ public class DeleteProtocol {
         for (PeerInformation key : Peer.getDatabase().getInformationStored().keySet()) {
 
             if (key.getFileId().equals(fileId))
-                set.add(key);
-
+                Peer.getInformationStored().remove(key);
         }
 
-        Peer.getDatabase().getInformationStored().keySet().removeAll(set);
     }
 }
