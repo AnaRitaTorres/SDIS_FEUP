@@ -28,8 +28,10 @@ public class BackupProtocol{
         DatagramPacket packet = new DatagramPacket(buf, buf.length, Peer.getMdb().getAddress(), Peer.getMdb().getPort_number());
 
         //Adds pair <fileId, chunkNo> to Peer.informationStored;
-        if(!Peer.containsKeyValue(chunk.getFileId(), chunk.getChunkNo()))
+        if(!Peer.containsKeyValue(chunk.getFileId(), chunk.getChunkNo())) {
             Peer.addToInformationStored(chunk.getFileId(), chunk.getChunkNo());
+            Peer.addInfo(chunk.getFileId(),chunk.getChunkNo());
+        }
 
         int num_attempts = 0;
         int random = ThreadLocalRandom.current().nextInt(0, 400);

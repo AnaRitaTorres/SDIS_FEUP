@@ -4,13 +4,18 @@ import fileManager.FileManager;
 import messages.DecomposeHeader;
 import messages.DecomposeMessage;
 import protocols.BackupProtocol;
+import protocols.ReclaimProtocol;
 import server.Peer;
 import server.PeerDatabase;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
+import java.lang.InterruptedException;
 
 /**
  * Created by catarina on 31-03-2017.
@@ -33,7 +38,7 @@ public class Handler {
         }
     }
 
-    public void handleRequests() throws IOException {
+    public void handleRequests() throws IOException,InterruptedException {
 
         if(requestsToHandle.isEmpty())
             return;
@@ -55,6 +60,9 @@ public class Handler {
                 case DELETE:
                     handleDelete(messageToHandle);
                     break;
+                case REMOVED:
+                    handleRemoved(messageToHandle);
+                    break;
             }
             removeRequest();
         }
@@ -66,7 +74,7 @@ public class Handler {
 
     public void handlePutchunk(DecomposeMessage messageToHandle) throws IOException {
 
-        //TODO: ter o ciclo
+         //TODO: ter o ciclo
         byte[] body = messageToHandle.getBody();
         DecomposeHeader header = new DecomposeHeader(messageToHandle.getHeader());
 
@@ -99,18 +107,39 @@ public class Handler {
     }
 
     public void handleDelete(DecomposeMessage messageToHandle) throws  IOException{
-        System.out.println(Peer.getInformationStored().toString());
-       DecomposeHeader header = new DecomposeHeader(messageToHandle.getHeader());
+
+        DecomposeHeader header = new DecomposeHeader(messageToHandle.getHeader());
 
         String fileId = header.getFileId();
         //TODO: eliminar ficheiro
         FileManager.deleteFile(fileId);
 
-       //TODO:eliminar os chunks com este fileID dos stored
+        //TODO:eliminar os chunks com este fileID dos stored
+    }
 
+    public void handleRemoved(DecomposeMessage messageToHandle) throws  IOException, InterruptedException{
 
+        DecomposeHeader header = new DecomposeHeader(messageToHandle.getHeader());
+        String fileId = header.getFileId();
+        int chunkNo = header.getChunkNo();
+        int random = ThreadLocalRandom.current().nextInt(0, 400);
 
+        PeerDatabase database = new PeerDatabase(fileId,chunkNo);
 
+        //verifica se existe, caso exista é removido
+        if(Peer.getInfo().containsValue(database))
+            Peer.getInfo().remove(database);
+
+        //se a contagem for menor que o repDegre
+        if(Peer.getInfo().size() < Peer.getReplication_degree()){
+            //delay
+            TimeUnit.MILLISECONDS.sleep(random);
+
+            //TODO:don't knoww
+            //a peer receives a PUTCHUNK message for the same file chunk, it should back off and restrain
+            // from starting yet another backup subprotocol for that file chunk
+        }
 
     }
+
 }

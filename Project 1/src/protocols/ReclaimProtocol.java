@@ -14,7 +14,7 @@ public class ReclaimProtocol {
 
     public static void sendRemovedMessage(String FileId, int chunkNo) throws IOException{
 
-        ComposeMessage messageTest = new ComposeMessage(MessageType.REMOVED, Peer.getVersion(), Peer.getServerId(), FileId, chunkNo);
+       ComposeMessage messageTest = new ComposeMessage(MessageType.REMOVED, Peer.getVersion(), Peer.getServerId(), FileId, chunkNo);
 
         byte[] message = messageTest.convertMessageWithoutBodyToByteArray();
 

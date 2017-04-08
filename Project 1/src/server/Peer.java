@@ -54,6 +54,8 @@ public class Peer implements Interface{
     //To store replicationDegree associated with each <fileId, chunkNo>
     //Key - Value
     private static HashMap<PeerDatabase, Integer> informationStored = new HashMap<>();
+    //for testing effects
+    private static HashMap<PeerDatabase,Integer> recInfo = new HashMap<>();
 
     public static void main(String args[]) throws IOException {
 
@@ -122,6 +124,7 @@ public class Peer implements Interface{
     }
 
     public static MC getMc() {
+        System.out.println("mc");
         return mc;
     }
 
@@ -166,6 +169,15 @@ public class Peer implements Interface{
         informationStored.put(new PeerDatabase(fileId, chunkNo), 0);
     }
 
+    //for testing
+    public static void addInfo(String fileId, int chunkNo){
+
+       recInfo.put(new PeerDatabase(fileId, chunkNo), 0);
+    }
+
+    public static HashMap<PeerDatabase, Integer> getInfo() { return recInfo;}
+
+
     public static boolean containsKeyValue(String fileId, int chunkNo){
 
         PeerDatabase database = new PeerDatabase(fileId, chunkNo);
@@ -198,6 +210,10 @@ public class Peer implements Interface{
             }
         }
         return null;
+    }
+
+    public static int getReplication_degree() {
+        return replication_degree;
     }
 
     @Override

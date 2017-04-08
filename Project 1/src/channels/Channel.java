@@ -5,6 +5,7 @@ import requests.Handler;
 import server.Peer;
 
 import java.io.IOException;
+import java.lang.InterruptedException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
@@ -48,7 +49,7 @@ public class Channel implements Runnable{
         while(true){
 
             try {
-
+                System.out.println("handler");
                 handler.handleRequests();
                 
                 //creates packet for reception
@@ -60,7 +61,7 @@ public class Channel implements Runnable{
                 handler.addRequest(message);
 
             }
-            catch (IOException e) {
+            catch (Exception e) {
                 e.printStackTrace();
             }
         }
