@@ -155,7 +155,7 @@ public class Handler {
 
         if (position != -1) {
             if (!Peer.getFilesToRestore().contains(body))
-                Peer.getFilesToRestore().elementAt(position).changePositionInVector(body, chunkNo);
+                Peer.getFilesToRestore().elementAt(position).changePositionInVector(body, chunkNo-1);
 
         }
 

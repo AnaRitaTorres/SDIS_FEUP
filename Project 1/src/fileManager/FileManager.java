@@ -27,28 +27,20 @@ public class FileManager {
     public FileManager(File file, int replicationDeg) {
 
         this.file = file;
-        this.fileId = generateFileId();
+        this.fileId = generateFileId(file);
         this.replicationDeg = replicationDeg;
     }
 
     public FileManager(File file){
         this.file = file;
-        this.fileId = generateFileId();
-    }
-
-    public File getFile() {
-        return file;
+        this.fileId = generateFileId(file);
     }
 
     public String getFileId() {
         return fileId;
     }
 
-    public int getReplicationDeg() {
-        return replicationDeg;
-    }
-
-    public static String generateFileId() {
+    public static String generateFileId(File file) {
 
         String fileID = null;
         try {

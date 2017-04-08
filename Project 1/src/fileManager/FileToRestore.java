@@ -1,7 +1,6 @@
 package fileManager;
 
 import java.io.*;
-import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -18,11 +17,12 @@ public class FileToRestore {
     private Vector<byte[]> chunks;
 
     public FileToRestore(String fileId, String filename, int numChunks){
+
         this.fileId = fileId;
         this.filename = filename;
         this.numChunks = numChunks;
         chunks = new Vector<>();
-        chunks.setSize(numChunks+1);
+        chunks.setSize(numChunks);
     }
 
     public String getFileId(){
@@ -38,16 +38,10 @@ public class FileToRestore {
             chunks.set(position, chunk);
     }
 
-    public boolean freePosition(int position){
-        if (chunks.elementAt(position) == null)
-            return true;
-
-        return false;
-    }
-
     public boolean filledVector(){
 
-        for (int i=1; i<=numChunks; i++){
+        System.out.println(chunks);
+        for (int i=0; i<numChunks; i++){
             if (chunks.get(i) == null)
                 return false;
         }
@@ -56,12 +50,11 @@ public class FileToRestore {
 
     public byte[] mergeChunks(){
 
-        chunks.remove(0);
-        System.out.println(chunks);
         ByteArrayOutputStream os = new ByteArrayOutputStream();
-        for (byte[] b : chunks) {
-            os.write(b, 0, b.length);
-        }
+
+        for(byte[] b: chunks)
+            os.write(b,0, b.length);
+
         return os.toByteArray();
     }
 
@@ -72,14 +65,11 @@ public class FileToRestore {
 
         //If path doesn't exist
         File file = new File(savePath);
-        if (!Files.exists(path)){
+        if (!Files.exists(path))
             file.getParentFile().mkdirs();
-        }
 
         byte[] body = mergeChunks();
 
-        FileOutputStream output = new FileOutputStream(new File(savePath));
-        output.write(body);
-        output.close();
+        Files.write(path, body);
     }
 }

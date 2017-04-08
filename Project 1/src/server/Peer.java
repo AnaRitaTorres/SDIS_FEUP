@@ -207,7 +207,8 @@ public class Peer implements Interface{
     @Override
     public void restore(File file) throws IOException {
 
-        RestoreProtocol.sendGetchunkMessage(file);
+        RestoreProtocol protocol = new RestoreProtocol();
+        protocol.sendGetchunkMessage(file);
     }
 
     @Override

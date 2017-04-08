@@ -18,20 +18,21 @@ import java.util.concurrent.TimeUnit;
  */
 public class RestoreProtocol {
 
-    public static void sendGetchunkMessage(File file) throws IOException {
+    public void sendGetchunkMessage(File file) throws IOException {
 
         int numChunks = FileManager.getNumChunks(file);
         String filename = file.getName();
 
         for (int chunkNo=1; chunkNo<=numChunks; chunkNo++){
 
-            String fileId = FileManager.generateFileId();
+            String fileId = FileManager.generateFileId(file);
 
             if (chunkNo==1){
                 FileToRestore fileToRestore = new FileToRestore(fileId, filename, numChunks);
 
                 if(!Peer.getFilesToRestore().contains(fileToRestore))
                     Peer.getFilesToRestore().add(fileToRestore);
+
             }
 
             ComposeMessage messageTest = new ComposeMessage(MessageType.GETCHUNK, Peer.getVersion(), Peer.getServerId(), fileId, chunkNo);
