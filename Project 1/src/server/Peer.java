@@ -12,6 +12,7 @@ import database.PeerDatabase;
 import fileManager.FileManager;
 import protocols.BackupProtocol;
 import protocols.DeleteProtocol;
+import protocols.ReclaimProtocol;
 import protocols.RestoreProtocol;
 
 import java.io.File;
@@ -25,6 +26,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.server.ExportException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Peer implements Interface{
 
@@ -158,6 +160,15 @@ public class Peer implements Interface{
 
     public static PeerDatabase getDatabase(){ return database; }
 
+    public static PeerInformation getKeyFromValue(HashMap<PeerInformation,Integer> hm, Integer value) {
+        for (PeerInformation o : hm.keySet()) {
+            if (hm.get(o).equals(value)) {
+                return o;
+            }
+        }
+        return null;
+    }
+
     @Override
     public void backup(File file, int replicationDeg) throws IOException, InterruptedException {
 
@@ -168,7 +179,6 @@ public class Peer implements Interface{
         for (int i = 0; i< chunksToBackup.size(); i++) {
             BackupProtocol.sendPutchunkMessage(chunksToBackup.get(i));
         }
-
     }
 
     @Override
@@ -185,6 +195,14 @@ public class Peer implements Interface{
     }
 
     @Override
+    public void reclaim(int reclaimed_space){
+
+
+        HashMap<PeerInformation, Integer> storedChunks = getDatabase().getStoredChunks();
+        System.out.println();
+
+    }
+    @Override
     public void exit() throws RemoteException {
         try {
             // Unregister the RMI
@@ -199,6 +217,6 @@ public class Peer implements Interface{
         }
     }
 
-    public void reclaim(int reclaimed_space){}
+
     public void state(){}
 }
