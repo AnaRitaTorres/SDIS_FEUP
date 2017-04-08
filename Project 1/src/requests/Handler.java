@@ -4,11 +4,14 @@ import fileManager.FileManager;
 import messages.DecomposeHeader;
 import messages.DecomposeMessage;
 import protocols.BackupProtocol;
+import protocols.RestoreProtocol;
 import server.Peer;
-import server.PeerDatabase;
 
+import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -44,7 +47,7 @@ public class Handler {
         //Peer ignores its own requests
         if (header.getSenderId() != Peer.getServerId()){
 
-            //TODO: completar handler
+            //TODO: completar requests
             switch(header.getMessageType()){
                 case PUTCHUNK:
                     handlePutchunk(messageToHandle);
@@ -54,6 +57,12 @@ public class Handler {
                     break;
                 case DELETE:
                     handleDelete(messageToHandle);
+                    break;
+                case GETCHUNK:
+                    handleGetchunk(messageToHandle);
+                    break;
+                case CHUNK:
+                    handleChunk(messageToHandle);
                     break;
             }
             removeRequest();
@@ -66,7 +75,7 @@ public class Handler {
 
     public void handlePutchunk(DecomposeMessage messageToHandle) throws IOException {
 
-        //TODO: ter o ciclo
+        //TODO: está a receber o body do primeiro putchunk... what??
         byte[] body = messageToHandle.getBody();
         DecomposeHeader header = new DecomposeHeader(messageToHandle.getHeader());
 
@@ -75,15 +84,16 @@ public class Handler {
 
             String fileId = header.getFileId();
             int chunkNo = header.getChunkNo();
+            int replicationDeg = header.getReplicationDeg();
 
-            //updtes occupied size
+            //updates occupied size
             Peer.updateOccupiedSize(body.length);
 
             //saves file
             FileManager.saveFile(body, fileId, chunkNo);
 
+            Peer.getDatabase().addToStoredChunks(fileId, chunkNo, replicationDeg);
             BackupProtocol.sendStoredMessage(fileId, chunkNo);
-
         }
     }
 
@@ -94,23 +104,70 @@ public class Handler {
         int chunkNo = header.getChunkNo();
 
         //Se for o Peer initiator, tem no hashmap o par <fileId, chunkNo>
-        if(Peer.containsKeyValue(fileId, chunkNo))
-            Peer.incrementsReplicationDegree(fileId, chunkNo);
+        if(Peer.getDatabase().containsKeyValue(fileId, chunkNo))
+            Peer.getDatabase().incrementsReplicationDegree(fileId, chunkNo);
     }
 
     public void handleDelete(DecomposeMessage messageToHandle) throws  IOException{
-        System.out.println(Peer.getInformationStored().toString());
-       DecomposeHeader header = new DecomposeHeader(messageToHandle.getHeader());
+
+        DecomposeHeader header = new DecomposeHeader(messageToHandle.getHeader());
 
         String fileId = header.getFileId();
-        //TODO: eliminar ficheiro
         FileManager.deleteFile(fileId);
+    }
 
-       //TODO:eliminar os chunks com este fileID dos stored
+    public void handleGetchunk(DecomposeMessage messageToHandle) throws IOException {
 
+        DecomposeHeader header = new DecomposeHeader(messageToHandle.getHeader());
 
+        String fileId = header.getFileId();
+        int chunkNo = header.getChunkNo();
 
+        String pathString = Peer.getPath() + fileId + "/" + chunkNo;
+        System.out.println(pathString);
 
+        File file = new File(pathString);
+        Path path = Paths.get(pathString);
 
+        if (file.exists()) {
+            byte[] body = Files.readAllBytes(path);
+            RestoreProtocol.sendChunkMessage(fileId, chunkNo, body);
+        }
+        else{
+            System.err.println("Não existe ficheiro");;
+        }
+    }
+
+    //TODO: falta juntar depois os ficheiros recebidos no handleChunk
+    public void handleChunk(DecomposeMessage messageToHandle) throws IOException {
+
+        DecomposeHeader header = new DecomposeHeader(messageToHandle.getHeader());
+
+        //TODO: Ao reverter ficheiro, espera-se o nome original --> linha de comandos
+        String fileId = header.getFileId();
+        int chunkNo = header.getChunkNo();
+        byte[] body = messageToHandle.getBody();
+
+        int position = hasElement(fileId);
+
+        if (position != -1) {
+            if (!Peer.getDatabase().getFilesToRestore().contains(body))
+                Peer.getDatabase().getFilesToRestore().elementAt(position).changePositionInVector(body, chunkNo-1);
+
+        }
+
+        //Se vector estiver cheio
+        if (Peer.getDatabase().getFilesToRestore().elementAt(position).filledVector()){
+            Peer.getDatabase().getFilesToRestore().elementAt(position).saveFile();
+        }
+    }
+
+    public int hasElement(String fileId){
+        for (int i=0; i<Peer.getDatabase().getFilesToRestore().size(); i++){
+            //Se existir
+            if (Peer.getDatabase().getFilesToRestore().elementAt(i).getFileId().equals(fileId))
+                return i;
+        }
+        return -1;
     }
 }

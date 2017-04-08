@@ -8,9 +8,11 @@ import channels.MDB;
 import channels.MDR;
 import chunk.Chunk;
 import client.Interface;
+import database.PeerDatabase;
 import fileManager.FileManager;
 import protocols.BackupProtocol;
 import protocols.DeleteProtocol;
+import protocols.RestoreProtocol;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,7 +25,6 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.server.ExportException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class Peer implements Interface{
 
@@ -47,10 +48,9 @@ public class Peer implements Interface{
     private static MDB mdb;
     private static MDR mdr;
 
-    //To store replicationDegree associated with each <fileId, chunkNo>
-    //Key - Value
-    private static HashMap<PeerDatabase, Integer> informationStored = new HashMap<>();
+    private static boolean use_enhancements;
 
+    private static PeerDatabase database = new PeerDatabase();
 
     public static void main(String args[]) throws IOException {
 
@@ -82,7 +82,6 @@ public class Peer implements Interface{
         protocol_version = args[0];
         server_id = Integer.parseInt(args[1]);
         path = "./BackUp/peer" + server_id + "/";
-        //path = "./BackUp/peer" + server_id + "/";
         peer_ap = args[2];
 
         mcAddress = InetAddress.getByName(args[3]);
@@ -98,6 +97,7 @@ public class Peer implements Interface{
     }
 
     public static void initializeRmi(){
+
         Peer peer = new Peer();
         try {
             Interface rmi = (Interface) UnicastRemoteObject.exportObject(peer, 0);
@@ -156,50 +156,32 @@ public class Peer implements Interface{
         size_occupied += size;
     }
 
-    public static HashMap<PeerDatabase, Integer> getInformationStored() { return informationStored; }
-
-    public static void addToInformationStored(String fileId, int chunkNo){
-
-        informationStored.put(new PeerDatabase(fileId, chunkNo), 0);
-    }
-
-    public static boolean containsKeyValue(String fileId, int chunkNo){
-
-        PeerDatabase database = new PeerDatabase(fileId, chunkNo);
-        return informationStored.containsKey(database);
-    }
-
-    public static void incrementsReplicationDegree(String fileId, int chunkNo){
-
-        PeerDatabase database = new PeerDatabase(fileId, chunkNo);
-        int value = informationStored.get(database) + 1;
-        informationStored.put(database, value);
-    }
-
-    public static void decreasesReplicationDegree(String fileId, int chunkNo){
-
-        PeerDatabase database = new PeerDatabase(fileId, chunkNo);
-        int value = informationStored.get(database) - 1;
-        informationStored.replace(database,value);
-    }
-
+    public static PeerDatabase getDatabase(){ return database; }
 
     @Override
     public void backup(File file, int replicationDeg) throws IOException, InterruptedException {
 
+        //TODO: adicionar copia local dos chunks com grau de replica
         FileManager fileManager = new FileManager(file, replicationDeg);
         ArrayList<Chunk> chunksToBackup = fileManager.divideFileInChunks();
 
         for (int i = 0; i< chunksToBackup.size(); i++) {
-
             BackupProtocol.sendPutchunkMessage(chunksToBackup.get(i));
         }
+
     }
 
     @Override
     public void delete(File file) throws IOException{
         FileManager fM = new FileManager(file);
         DeleteProtocol.sendDeleteMessage(fM.getFileId());
+    }
+
+    @Override
+    public void restore(File file) throws IOException {
+
+        RestoreProtocol protocol = new RestoreProtocol();
+        protocol.sendGetchunkMessage(file);
     }
 
     @Override
@@ -217,7 +199,6 @@ public class Peer implements Interface{
         }
     }
 
-    public void restore(String peer_ap, File file){}
-    public void reclaim(String peer_ap, int reclaimed_space){}
+    public void reclaim(int reclaimed_space){}
     public void state(){}
 }

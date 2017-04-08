@@ -6,6 +6,7 @@ import java.io.*;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.Scanner;
 
 public class TestApp {
 
@@ -14,6 +15,7 @@ public class TestApp {
     private int replicationDeg;
     private int reclaimed_space;
     private File file;
+    private static boolean use_enhancements;
 
     public static void main(String[] args) throws RemoteException {
         TestApp testApp = new TestApp();
@@ -24,6 +26,8 @@ public class TestApp {
 
         if (!validArguments(args))
             return;
+
+        //checkEnhancements();
 
         Registry registry;
         Interface rmi = null;
@@ -37,11 +41,12 @@ public class TestApp {
             */
             switch(sub_protocol){
                 case "BACKUP":
+                    //TODO: adicionar use_enhancements
                     rmi.backup(file, replicationDeg);
                     break;
 
                 case "RESTORE":
-                    rmi.restore(peer_ap, file);
+                    rmi.restore(file);
                     break;
 
                 case "DELETE":
@@ -49,7 +54,7 @@ public class TestApp {
                     break;
 
                 case "RECLAIM":
-                    rmi.reclaim(peer_ap, reclaimed_space);
+                    rmi.reclaim(reclaimed_space);
                     break;
 
             }
@@ -61,6 +66,18 @@ public class TestApp {
         if (rmi == null)
             rmi.exit();
 
+    }
+
+    public void checkEnhancements(){
+
+        Scanner reader = new Scanner(System.in);
+        System.out.println("Use Enhancements? (y/n)");
+        String answer = reader.next();
+
+        if (answer.toLowerCase() == "y" || answer.toLowerCase() == "yes")
+            use_enhancements = true;
+        else
+            use_enhancements = false;
     }
 
     public boolean validArguments(String[] args){

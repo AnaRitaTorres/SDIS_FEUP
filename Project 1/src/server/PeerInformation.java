@@ -1,19 +1,25 @@
 package server;
 
-import java.io.Serializable;
 import java.util.Objects;
 
 /**
  * Created by catarina on 03-04-2017.
  */
-public class PeerDatabase {
+public class PeerInformation {
 
     private String fileId;
     private int chunkNo;
+    private int replicationDeg;
 
-    public PeerDatabase(String fileId, int chunkNo){
+    public PeerInformation(String fileId, int chunkNo){
         this.fileId = fileId;
         this.chunkNo = chunkNo;
+    }
+
+    public PeerInformation(String fileId, int chunkNo, int replicationDeg){
+        this.fileId = fileId;
+        this.chunkNo = chunkNo;
+        this.replicationDeg = replicationDeg;
     }
 
     public String getFileId() {
@@ -24,16 +30,18 @@ public class PeerDatabase {
         return chunkNo;
     }
 
+    public int getReplicationDeg() { return replicationDeg; }
+
     @Override
     public boolean equals(Object obj) {
 
         if (obj == this)
             return true;
 
-        if (!(obj instanceof PeerDatabase))
+        if (!(obj instanceof PeerInformation))
             return false;
 
-        PeerDatabase info = (PeerDatabase) obj;
+        PeerInformation info = (PeerInformation) obj;
 
         return Objects.equals(fileId, info.fileId) && info.chunkNo == chunkNo;
     }
