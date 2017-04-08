@@ -11,7 +11,6 @@ class server{
 
          //check num args
          if(args.length != 3){
-            System.out.println("Wrong Number of Arguments");
             System.out.println("USAGE: java server <srvc_port> <mcast_addr> <mcast_port> ");
             return;
          }

@@ -12,45 +12,35 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
-
 
 /**
  * Created by iamgroot on 27/03/17.
  */
 public class FileManager {
 
-    private File file;
-    private String fileId;
-    private int replicationDeg;
+    private static File file;
+    private static String fileId;
+    private static int replicationDeg;
 
     public FileManager(File file, int replicationDeg) {
 
         this.file = file;
-        this.fileId = generateFileId();
+        this.fileId = generateFileId(file);
         this.replicationDeg = replicationDeg;
     }
 
     public FileManager(File file){
         this.file = file;
-        this.fileId = generateFileId();
-    }
-
-    public File getFile() {
-        return file;
+        this.fileId = generateFileId(file);
     }
 
     public String getFileId() {
         return fileId;
     }
 
-    public int getReplicationDeg() {
-        return replicationDeg;
-    }
-
-    public String generateFileId() {
+    public static String generateFileId(File file) {
 
         String fileID = null;
         try {
@@ -78,11 +68,7 @@ public class FileManager {
 
         long fileSize = file.length(); //filesize in byte
         long remainder = (int) fileSize % Chunk.MAX_SIZE;
-        long numChunks = fileSize / Chunk.MAX_SIZE;
-        if (remainder != 0) {
-            numChunks++;
-        }
-
+        long numChunks = getNumChunks(file);
         int chunkNo = 1;
 
         Path path = file.toPath();
@@ -130,6 +116,30 @@ public class FileManager {
 
         String path = Peer.getPath() + fileId;
         File file = new File(path);
-        file.delete();
+
+        if (file.exists()){
+            File[] files = file.listFiles();
+            if(files != null){
+                for (int i=0; i<files.length; i++)
+                    files[i].delete();
+            }
+            file.delete();
+        }
+    }
+
+    public static int getNumChunks(File file){
+
+        int numChunks = 0;
+
+        if (file.exists()){
+            numChunks = (int) file.length() / Chunk.MAX_SIZE;
+
+            if (file.length() % Chunk.MAX_SIZE != 0)
+                numChunks++;
+        }
+        else
+            System.err.println("File doesn't exist.");
+
+        return numChunks;
     }
 }
