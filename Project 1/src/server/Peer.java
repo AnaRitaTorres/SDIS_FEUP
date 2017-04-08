@@ -14,9 +14,12 @@ import protocols.DeleteProtocol;
 import protocols.ReclaimProtocol;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.file.Path;
 import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
@@ -216,6 +219,26 @@ public class Peer implements Interface{
         return replication_degree;
     }
 
+    public static void writeStoredFile() throws IOException,FileNotFoundException{
+
+        String path = "./Stored";
+        File file = new File(path);
+        FileOutputStream output = new FileOutputStream(file);
+
+        //se o ficheiro não existir
+        if (!file.exists()) {
+            file.createNewFile();
+        }
+
+        for(int j=0; j < getInformationStored().size();j++){
+
+            byte[] contentInBytes = informationStored.toString().getBytes();
+            output.write(contentInBytes);
+        }
+
+        output.flush();
+        output.close();
+    }
     @Override
     public void backup(File file, int replicationDeg) throws IOException, InterruptedException {
 
@@ -227,6 +250,7 @@ public class Peer implements Interface{
 
             BackupProtocol.sendPutchunkMessage(chunksToBackup.get(i));
         }
+        writeStoredFile();
     }
 
     @Override
