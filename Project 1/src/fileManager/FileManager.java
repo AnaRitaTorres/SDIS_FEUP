@@ -83,6 +83,7 @@ public class FileManager {
                 chunks.add(new Chunk(chunkNo, this.fileId, this.replicationDeg, chunkArray));
 
                 j = 0;
+                chunkArray = new byte[Chunk.MAX_SIZE];
                 chunkNo++;
             }
             chunkArray[j] = data[i];

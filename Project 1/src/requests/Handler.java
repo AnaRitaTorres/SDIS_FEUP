@@ -91,18 +91,6 @@ public class Handler {
             int chunkNo = header.getChunkNo();
             int replicationDeg = header.getReplicationDeg();
 
-            /*if (Peer.useEnhancements()){
-                System.out.println("cheguei");
-                PeerInformation peer = new PeerInformation(fileId, chunkNo, replicationDeg);
-                if (Peer.getDatabase().getStoredChunks().containsKey(peer)){
-                    int realReplicationDeg = Peer.getDatabase().getStoredChunks().get(peer);
-                    System.out.println(realReplicationDeg);
-                    if (realReplicationDeg >= replicationDeg) {
-                        System.out.println("Enhan: " + Peer.getDatabase().getStoredChunks());
-                        return;
-                    }
-                }
-            }*/
 
             //Se não conseguir adicionar à base de dados, é porque já lá está guardado
             if (!Peer.getDatabase().addToStoredChunks(fileId, chunkNo, replicationDeg)) {
@@ -117,17 +105,31 @@ public class Handler {
                     e.printStackTrace();
                 }
 
+                if (Peer.useEnhancements()){
+                    PeerInformation peer = new PeerInformation(fileId, chunkNo, replicationDeg);
+                    if (Peer.getDatabase().getStoredChunks().containsKey(peer)){
+                        int realReplicationDeg = Peer.getDatabase().getStoredChunks().get(peer);
+                        System.out.println(realReplicationDeg);
+                        if (realReplicationDeg >= replicationDeg) {
+                            System.out.println("Enhan: " + Peer.getDatabase().getStoredChunks());
+                            return;
+                        }
+                    }
+                }
+
                 BackupProtocol.sendStoredMessage(fileId, chunkNo);
             }
+
             //updates occupied size
             Peer.updateOccupiedSize(body.length);
             //saves file
             FileManager.saveFile(body, fileId, chunkNo);
+
+            System.out.println(Peer.getDatabase().getStoredChunks());
         }
         else{
             System.out.println("I have no space to backup the file!");
         }
-        System.out.println(Peer.getDatabase().getStoredChunks());
     }
 
     public void handleStored(DecomposeMessage messageToHandle) throws IOException{
@@ -142,7 +144,6 @@ public class Handler {
         }
 
         if (!Peer.getDatabase().addToStoredChunks(fileId, chunkNo)){
-            System.out.println("Estou a incrementar");
             Peer.getDatabase().incrementsStoredChunks(fileId, chunkNo);
         }
     }
