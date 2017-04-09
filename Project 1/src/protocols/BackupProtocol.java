@@ -1,6 +1,7 @@
 package protocols;
 
 import chunk.Chunk;
+import fileManager.FileManager;
 import messages.ComposeMessage;
 import messages.MessageType;
 import server.Peer;

@@ -25,6 +25,8 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.server.ExportException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 
 public class Peer implements Interface{
 
@@ -227,6 +229,31 @@ public class Peer implements Interface{
     }
 
     @Override
+    public void state(){
+
+        System.out.println("Files Init Backup:");
+
+        System.out.println("Each Chunk Stored:");
+
+        Iterator it = getDatabase().getInformationStored().entrySet().iterator();
+        while (it.hasNext()) {
+            HashMap.Entry pair = (HashMap.Entry)it.next();
+            String info = pair.getKey().toString();
+            String[] parts = info.split(" ");
+            System.out.println("File ID: "+ parts[0]);
+            System.out.println("Chunk No: "+ parts[1]);
+            System.out.println("Rep Degree: "+ parts[2] + "\n");
+            it.remove();
+        }
+        System.out.println("Max Space to Store Chunks:");
+        System.out.println(getMaxSizeToSave()/1024 + "\n");
+        System.out.println("Space Used to Backup Chunks:");
+        System.out.println(getOccupiedSize() + "\n");
+
+
+    }
+
+    @Override
     public void exit() throws RemoteException {
         try {
             // Unregister the RMI
@@ -241,5 +268,5 @@ public class Peer implements Interface{
         }
     }
 
-    public void state(){}
+
 }

@@ -5,6 +5,7 @@ import server.Peer;
 
 import javax.xml.bind.DatatypeConverter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -78,10 +79,8 @@ public class FileManager {
 
         for (int i = 0; i < fileSize; i++) {
             if (i % Chunk.MAX_SIZE == 0 && i > 0) {
-
                 //create chunk and add it to arraylist
                 chunks.add(new Chunk(chunkNo, this.fileId, this.replicationDeg, chunkArray));
-
                 j = 0;
                 chunkArray = new byte[Chunk.MAX_SIZE];
                 chunkNo++;
@@ -111,6 +110,8 @@ public class FileManager {
 
         FileOutputStream output = new FileOutputStream(new File(savePath + chunkNo));
         output.write(body);
+        output.flush();
+        output.close();
     }
 
     public static void deleteDirectory(String fileId) {

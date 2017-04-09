@@ -56,6 +56,9 @@ public class TestApp {
                 case "RECLAIM":
                     rmi.reclaim(reclaimed_space);
                     break;
+                case"STATE":
+                    rmi.state();
+                    break;
 
             }
         }
