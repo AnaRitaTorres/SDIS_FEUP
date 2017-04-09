@@ -6,6 +6,7 @@ import messages.DecomposeMessage;
 import protocols.BackupProtocol;
 import protocols.RestoreProtocol;
 import server.Peer;
+import server.PeerInformation;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,6 +15,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by catarina on 31-03-2017.
@@ -78,7 +81,6 @@ public class Handler {
 
     public void handlePutchunk(DecomposeMessage messageToHandle) throws IOException {
 
-        //TODO: está a receber o body do primeiro putchunk... what??
         byte[] body = messageToHandle.getBody();
         DecomposeHeader header = new DecomposeHeader(messageToHandle.getHeader());
 
@@ -89,29 +91,57 @@ public class Handler {
             int chunkNo = header.getChunkNo();
             int replicationDeg = header.getReplicationDeg();
 
+
+            //Se não conseguir adicionar à base de dados, é porque já lá está guardado
+            if (!Peer.getDatabase().addToStoredChunks(fileId, chunkNo, replicationDeg)) {
+                String path = fileId + "/" + chunkNo;
+                FileManager.deleteFile(path);
+            }
+            else{
+                int random = ThreadLocalRandom.current().nextInt(0, 400 + 1);
+                try {
+                    TimeUnit.MILLISECONDS.sleep(random);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                if (Peer.useEnhancements()){
+                    PeerInformation peer = new PeerInformation(fileId, chunkNo, replicationDeg);
+                    if (Peer.getDatabase().getStoredChunks().containsKey(peer)){
+                        int realReplicationDeg = Peer.getDatabase().getStoredChunks().get(peer);
+                        System.out.println(realReplicationDeg);
+                        if (realReplicationDeg >= replicationDeg) {
+                            System.out.println("Enhan: " + Peer.getDatabase().getStoredChunks());
+                            return;
+                        }
+                    }
+                }
+
+                BackupProtocol.sendStoredMessage(fileId, chunkNo);
+            }
+
             //updates occupied size
             Peer.updateOccupiedSize(body.length);
-
             //saves file
             FileManager.saveFile(body, fileId, chunkNo);
 
-            if (!Peer.getDatabase().addToStoredChunks(fileId, chunkNo, replicationDeg)){
-                    Peer.getDatabase().incrementsStoredChunks(fileId, chunkNo, replicationDeg);
-            }
-
-            BackupProtocol.sendStoredMessage(fileId, chunkNo);
+            System.out.println(Peer.getDatabase().getStoredChunks());
+        }
+        else{
+            System.out.println("I have no space to backup the file!");
         }
     }
 
     public void handleStored(DecomposeMessage messageToHandle) throws IOException{
-        byte[] body = messageToHandle.getBody();
+
         DecomposeHeader header = new DecomposeHeader(messageToHandle.getHeader());
         String fileId = header.getFileId();
         int chunkNo = header.getChunkNo();
 
         //Se for o Peer initiator, tem no hashmap o par <fileId, chunkNo>
-        if(Peer.getDatabase().containsKeyValue(fileId, chunkNo))
+        if(Peer.getDatabase().containsKeyValue(fileId, chunkNo)) {
             Peer.getDatabase().incrementsReplicationDegree(fileId, chunkNo);
+        }
 
         if (!Peer.getDatabase().addToStoredChunks(fileId, chunkNo)){
             Peer.getDatabase().incrementsStoredChunks(fileId, chunkNo);
@@ -123,7 +153,7 @@ public class Handler {
         DecomposeHeader header = new DecomposeHeader(messageToHandle.getHeader());
 
         String fileId = header.getFileId();
-        FileManager.deleteFile(fileId);
+        FileManager.deleteDirectory(fileId);
     }
 
     public void handleGetchunk(DecomposeMessage messageToHandle) throws IOException {
@@ -134,13 +164,18 @@ public class Handler {
         int chunkNo = header.getChunkNo();
 
         String pathString = Peer.getPath() + fileId + "/" + chunkNo;
-        System.out.println(pathString);
 
         File file = new File(pathString);
         Path path = Paths.get(pathString);
 
         if (file.exists()) {
             byte[] body = Files.readAllBytes(path);
+            int random = ThreadLocalRandom.current().nextInt(0, 400 + 1);
+            try {
+                TimeUnit.MILLISECONDS.sleep(random);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             RestoreProtocol.sendChunkMessage(fileId, chunkNo, body);
         }
         else{
@@ -148,12 +183,10 @@ public class Handler {
         }
     }
 
-    //TODO: falta juntar depois os ficheiros recebidos no handleChunk
     public void handleChunk(DecomposeMessage messageToHandle) throws IOException {
 
         DecomposeHeader header = new DecomposeHeader(messageToHandle.getHeader());
 
-        //TODO: Ao reverter ficheiro, espera-se o nome original --> linha de comandos
         String fileId = header.getFileId();
         int chunkNo = header.getChunkNo();
         byte[] body = messageToHandle.getBody();
@@ -172,6 +205,29 @@ public class Handler {
         }
     }
 
+    public void handleRemoved(DecomposeMessage messageToHandle) throws IOException {
+
+        DecomposeHeader header = new DecomposeHeader(messageToHandle.getHeader());
+        String fileId = header.getFileId();
+        int chunkNo = header.getChunkNo();
+
+        PeerInformation peerInfo = new PeerInformation(fileId, chunkNo);
+
+        Peer.getDatabase().decreasesReplicationDegree(fileId, chunkNo);
+        Peer.getDatabase().decreasesStoredChunks(fileId, chunkNo);
+
+        int desiredReplicationDeg = Peer.getDatabase().getDesiredReplicationDeg(fileId, chunkNo, Peer.getDatabase().getInformationStored());
+
+        if (desiredReplicationDeg == -1){
+            desiredReplicationDeg = Peer.getDatabase().getDesiredReplicationDeg(fileId, chunkNo, Peer.getDatabase().getStoredChunks());
+        }
+
+        //Se o valor real for inferior ao desejado
+        if (Peer.getDatabase().getStoredChunks().get(peerInfo) < desiredReplicationDeg){
+            BackupProtocol.sendStoredMessage(fileId, chunkNo);
+        }
+    }
+
     public int hasElement(String fileId){
         for (int i=0; i<Peer.getDatabase().getFilesToRestore().size(); i++){
             //Se existir
@@ -179,10 +235,5 @@ public class Handler {
                 return i;
         }
         return -1;
-    }
-
-    public void handleRemoved(DecomposeMessage messageToHandle) throws IOException {
-
-
     }
 }

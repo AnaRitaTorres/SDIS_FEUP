@@ -6,7 +6,6 @@ import java.io.*;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.util.Scanner;
 
 public class TestApp {
 
@@ -27,8 +26,6 @@ public class TestApp {
         if (!validArguments(args))
             return;
 
-        //checkEnhancements();
-
         Registry registry;
         Interface rmi = null;
 
@@ -42,7 +39,10 @@ public class TestApp {
             switch(sub_protocol){
                 case "BACKUP":
                     //TODO: adicionar use_enhancements
-                    rmi.backup(file, replicationDeg);
+                    rmi.backup(file, replicationDeg, false);
+                    break;
+                case "BACKUPENH":
+                    rmi.backup(file, replicationDeg, true);
                     break;
 
                 case "RESTORE":
@@ -68,18 +68,6 @@ public class TestApp {
 
     }
 
-    public void checkEnhancements(){
-
-        Scanner reader = new Scanner(System.in);
-        System.out.println("Use Enhancements? (y/n)");
-        String answer = reader.next();
-
-        if (answer.toLowerCase() == "y" || answer.toLowerCase() == "yes")
-            use_enhancements = true;
-        else
-            use_enhancements = false;
-    }
-
     public boolean validArguments(String[] args){
 
         peer_ap = args[0]; //remote object name
@@ -94,6 +82,7 @@ public class TestApp {
 
         switch(sub_protocol){
             case "BACKUP":
+            case "BACKUPENH":
                 if(args.length != 4) {
                     System.out.println("Usage: java TestApp <peer_ap> BACKUP <opnd_1> <opnd_2>");
                     return false;

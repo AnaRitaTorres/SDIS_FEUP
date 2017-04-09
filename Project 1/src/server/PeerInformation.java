@@ -14,6 +14,7 @@ public class PeerInformation {
     public PeerInformation(String fileId, int chunkNo){
         this.fileId = fileId;
         this.chunkNo = chunkNo;
+        this.replicationDeg = 0;
     }
 
     public PeerInformation(String fileId, int chunkNo, int replicationDeg){
@@ -26,11 +27,9 @@ public class PeerInformation {
         return fileId;
     }
 
-    public int getChunkNo() {
-        return chunkNo;
-    }
-
     public int getReplicationDeg() { return replicationDeg; }
+
+    public int getChunkNo() { return chunkNo; }
 
     @Override
     public boolean equals(Object obj) {
@@ -53,6 +52,6 @@ public class PeerInformation {
 
     @Override
     public String toString(){
-        return fileId + " " + chunkNo;
+        return fileId + " " + chunkNo + " " + replicationDeg;
     }
 }

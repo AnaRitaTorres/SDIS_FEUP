@@ -10,12 +10,11 @@ import chunk.Chunk;
 import client.Interface;
 import database.PeerDatabase;
 import fileManager.FileManager;
-import protocols.BackupProtocol;
-import protocols.DeleteProtocol;
-import protocols.ReclaimProtocol;
-import protocols.RestoreProtocol;
+import protocols.*;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -26,7 +25,6 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.server.ExportException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class Peer implements Interface{
 
@@ -37,6 +35,8 @@ public class Peer implements Interface{
     private static int max_size_to_save = 5000000;
     private static int size_occupied = 0;
     private static String path;
+    private static boolean useEnhancements = true;
+
 
     //Rmi
     private static Registry registry;
@@ -49,8 +49,6 @@ public class Peer implements Interface{
     private static MC mc;
     private static MDB mdb;
     private static MDR mdr;
-
-    private static boolean use_enhancements;
 
     private static PeerDatabase database = new PeerDatabase();
 
@@ -68,7 +66,6 @@ public class Peer implements Interface{
         new Thread(mdr).start();
 
         initializeRmi();
-
     }
 
     public static boolean validArguments(String[] args) throws UnknownHostException {
@@ -148,7 +145,7 @@ public class Peer implements Interface{
         max_size_to_save = size;
     }
 
-    public static String getPath(){ return path; }
+    public static String getPath() { return path; }
 
     public static int getOccupiedSize() {
         return size_occupied;
@@ -158,27 +155,48 @@ public class Peer implements Interface{
         size_occupied += size;
     }
 
-    public static PeerDatabase getDatabase(){ return database; }
-
-    public static PeerInformation getKeyFromValue(HashMap<PeerInformation,Integer> hm, Integer value) {
-        for (PeerInformation o : hm.keySet()) {
-            if (hm.get(o).equals(value)) {
-                return o;
-            }
-        }
-        return null;
+    public static void releaseSpace(int size){
+        size_occupied -= size;
+        if (size_occupied < 0)
+            size_occupied = 0;
     }
 
-    @Override
-    public void backup(File file, int replicationDeg) throws IOException, InterruptedException {
+    public static PeerDatabase getDatabase() { return database; }
 
-        //TODO: adicionar copia local dos chunks com grau de replica
+    public static boolean useEnhancements() { return useEnhancements; }
+
+    public static void writeStoredFile() throws IOException,FileNotFoundException {
+        String path = "./Stored";
+        File file = new File(path);
+        FileOutputStream output = new FileOutputStream(file);
+
+        //se o ficheiro não existir
+        if (!file.exists()) {
+            file.createNewFile();
+        }
+
+       int size = getDatabase().getInformationStored().size();
+
+        for(int i=0; i < size; i++){
+           byte[] contentInBytes = getDatabase().getInformationStored().toString().getBytes();
+            output.write(contentInBytes);
+        }
+        output.flush();
+        output.close();
+    }
+
+
+    @Override
+    public void backup(File file, int replicationDeg, boolean useEnhancements) throws IOException, InterruptedException {
+
         FileManager fileManager = new FileManager(file, replicationDeg);
         ArrayList<Chunk> chunksToBackup = fileManager.divideFileInChunks();
 
         for (int i = 0; i< chunksToBackup.size(); i++) {
             BackupProtocol.sendPutchunkMessage(chunksToBackup.get(i));
         }
+        writeStoredFile();
+
     }
 
     @Override
@@ -195,13 +213,19 @@ public class Peer implements Interface{
     }
 
     @Override
-    public void reclaim(int reclaimed_space){
+    public void reclaim(int reclaimed_space) throws IOException {
 
-
-        HashMap<PeerInformation, Integer> storedChunks = getDatabase().getStoredChunks();
-        System.out.println();
-
+        if (size_occupied <= reclaimed_space){
+            setMaxSizeToSave(reclaimed_space);
+            System.out.println("Set max space storage to " + size_occupied);
+        }
+        else {
+            int dif = size_occupied - reclaimed_space;
+            ReclaimProtocol protocol = new ReclaimProtocol(dif);
+            protocol.reclaim();
+        }
     }
+
     @Override
     public void exit() throws RemoteException {
         try {
@@ -216,7 +240,6 @@ public class Peer implements Interface{
 
         }
     }
-
 
     public void state(){}
 }

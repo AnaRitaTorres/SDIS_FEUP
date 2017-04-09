@@ -72,6 +72,18 @@ public class ComposeMessage {
         return message;
     }
 
+    public byte[] convertMessageWithoutBodyToByteArray(){
+
+        byte[] buf = header.convertHeaderToString().getBytes();
+        byte[] crfl = CRLF.getBytes();
+        byte[] message = new byte[buf.length + crfl.length];
+
+        System.arraycopy(buf, 0, message, 0, buf.length);
+        System.arraycopy(crfl, 0, message, buf.length, crfl.length);
+
+        return message;
+    }
+
     public String convertMessageToStringWithoutBody(){
         return header.convertHeaderToString() + CRLF;
     }
