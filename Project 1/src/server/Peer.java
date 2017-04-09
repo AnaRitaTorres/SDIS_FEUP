@@ -12,6 +12,7 @@ import database.PeerDatabase;
 import fileManager.FileManager;
 import protocols.BackupProtocol;
 import protocols.DeleteProtocol;
+import protocols.ReclaimProtocol;
 import protocols.RestoreProtocol;
 
 import java.io.File;
@@ -184,6 +185,21 @@ public class Peer implements Interface{
     }
 
     @Override
+    public void reclaim(int reclaimed_space) throws IOException {
+
+        if (size_occupied <= reclaimed_space){
+            setMaxSizeToSave(reclaimed_space);
+            System.out.println("Set max space storage to " + size_occupied);
+        }
+        else {
+            int dif = size_occupied - reclaimed_space;
+            ReclaimProtocol protocol = new ReclaimProtocol(dif);
+            protocol.reclaim();
+        }
+
+    }
+
+    @Override
     public void exit() throws RemoteException {
         try {
             // Unregister the RMI
@@ -198,6 +214,5 @@ public class Peer implements Interface{
         }
     }
 
-    public void reclaim(int reclaimed_space){}
     public void state(){}
 }

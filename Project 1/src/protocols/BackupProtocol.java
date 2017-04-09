@@ -29,8 +29,9 @@ public class BackupProtocol{
         DatagramPacket packet = new DatagramPacket(buf, buf.length, Peer.getMdb().getAddress(), Peer.getMdb().getPort_number());
 
         //Adds <fileId, chunkNo, replicationDeg> to Peer.informationStored;
-        if(!Peer.getDatabase().containsKeyValue(chunk.getFileId(), chunk.getChunkNo()))
+        if(!Peer.getDatabase().containsKeyValue(chunk.getFileId(), chunk.getChunkNo())) {
             Peer.getDatabase().addToInformationStored(chunk.getFileId(), chunk.getChunkNo(), chunk.getReplicationDeg());
+        }
 
         int num_attempts = 0;
         int random = ThreadLocalRandom.current().nextInt(0, 400);
@@ -63,5 +64,4 @@ public class BackupProtocol{
 
         Peer.getMc().getSocket().send(packet);
     }
-
 }

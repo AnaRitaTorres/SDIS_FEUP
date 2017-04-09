@@ -29,6 +29,8 @@ public class PeerInformation {
 
     public int getReplicationDeg() { return replicationDeg; }
 
+    public int getChunkNo() { return chunkNo; }
+
     @Override
     public boolean equals(Object obj) {
 

@@ -99,7 +99,6 @@ public class FileManager {
 
     public static void saveFile(byte[] body, String fileId, int chunkNo) throws IOException {
 
-        //TODO: ver o porquê de estar tão lento
         String savePath = Peer.getPath() + fileId + "/";
         Path path = Paths.get(savePath);
 

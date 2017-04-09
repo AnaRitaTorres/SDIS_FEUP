@@ -40,7 +40,6 @@ public class FileToRestore {
 
     public boolean filledVector(){
 
-        System.out.println(chunks);
         for (int i=0; i<numChunks; i++){
             if (chunks.get(i) == null)
                 return false;

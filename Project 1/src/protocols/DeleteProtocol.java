@@ -35,7 +35,5 @@ public class DeleteProtocol {
             }
         }
         Peer.getDatabase().getInformationStored().keySet().removeAll(set);
-
-        System.out.println("InformationStored: " + Peer.getDatabase().getInformationStored());
     }
 }

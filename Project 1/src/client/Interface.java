@@ -13,7 +13,7 @@ public interface Interface extends Remote {
     void backup(File file, int replicationDeg) throws IOException, InterruptedException;
     void delete(File file) throws IOException,RemoteException;
     void restore(File file) throws IOException, RemoteException;
-    void reclaim(int reclaimed_space) throws RemoteException;
+    void reclaim(int reclaimed_space) throws IOException;
     void state() throws RemoteException;
     void exit() throws RemoteException;
 }
