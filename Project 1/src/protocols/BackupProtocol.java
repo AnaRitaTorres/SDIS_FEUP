@@ -59,8 +59,6 @@ public class BackupProtocol {
         if (!successful){
             System.out.println("Backup done with replication degree lesser than the desired replication degree!");
         }
-
-        System.out.println("contem" + Peer.getDatabase().getInformationStored());
     }
 
     public static void sendStoredMessage(String fileId, int chunkNo) throws IOException {

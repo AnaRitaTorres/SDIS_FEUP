@@ -81,54 +81,55 @@ public class Handler {
 
     public void handlePutchunk(DecomposeMessage messageToHandle) throws IOException {
 
+        //TODO: alterar este cabrão
         byte[] body = messageToHandle.getBody();
         DecomposeHeader header = new DecomposeHeader(messageToHandle.getHeader());
 
-        //Se ainda tiver espaço para guardar chunks
-        if (Peer.getOccupiedSize() + body.length < Peer.getMaxSizeToSave()){
+        String fileId = header.getFileId();
+        int chunkNo = header.getChunkNo();
+        int replicationDeg = header.getReplicationDeg();
 
-            String fileId = header.getFileId();
-            int chunkNo = header.getChunkNo();
-            int replicationDeg = header.getReplicationDeg();
+        if (Peer.getOccupiedSize() + body.length < Peer.getMaxSizeToSave()) {
 
+            if (Peer.useEnhancements()){
 
-            //Se não conseguir adicionar à base de dados, é porque já lá está guardado
-            if (!Peer.getDatabase().addToStoredChunks(fileId, chunkNo, replicationDeg)) {
-                String path = fileId + "/" + chunkNo;
-                FileManager.deleteFile(path);
-            }
-            else{
-                int random = ThreadLocalRandom.current().nextInt(0, 400 + 1);
-                try {
-                    TimeUnit.MILLISECONDS.sleep(random);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                PeerInformation peer = new PeerInformation(fileId, chunkNo, replicationDeg);
+
+                if (!Peer.getDatabase().addToStoredChunks(fileId, chunkNo, replicationDeg)){
+
+                    System.out.println("Ja existo " + fileId + " " + chunkNo);
+                    //String path = fileId + "/" + chunkNo;
+                    //FileManager.deleteFile(path);
+
+                    //FileManager.saveFile(body, fileId, chunkNo);
                 }
+                else{
 
-                if (Peer.useEnhancements()){
-                    PeerInformation peer = new PeerInformation(fileId, chunkNo, replicationDeg);
-                    if (Peer.getDatabase().getStoredChunks().containsKey(peer)){
-                        int realReplicationDeg = Peer.getDatabase().getStoredChunks().get(peer);
-                        System.out.println(realReplicationDeg);
-                        if (realReplicationDeg >= replicationDeg) {
-                            System.out.println("Enhan: " + Peer.getDatabase().getStoredChunks());
-                            return;
-                        }
+                    int random = ThreadLocalRandom.current().nextInt(0, 400 + 1);
+                    try {
+                        TimeUnit.MILLISECONDS.sleep(random);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    int realDeg = Peer.getDatabase().getStoredChunks().get(peer);
+                    System.out.println("grau real " + realDeg);
+                    System.out.println("grau desejado " + peer.getReplicationDeg());
+                    System.out.println("chunkNo: " + peer.getChunkNo());
+
+                    if (realDeg < peer.getReplicationDeg()){
+
+                        System.out.println("vou guardar o ficheiro");
+                        FileManager.saveFile(body, fileId, chunkNo);
+                        Peer.getDatabase().incrementsStoredChunks(fileId, chunkNo);
+                        BackupProtocol.sendStoredMessage(fileId, chunkNo);
                     }
                 }
+            }
+            else{
 
-                BackupProtocol.sendStoredMessage(fileId, chunkNo);
             }
 
-            //updates occupied size
-            Peer.updateOccupiedSize(body.length);
-            //saves file
-            FileManager.saveFile(body, fileId, chunkNo);
-
-            System.out.println(Peer.getDatabase().getStoredChunks());
-        }
-        else{
-            System.out.println("I have no space to backup the file!");
         }
     }
 
@@ -143,7 +144,8 @@ public class Handler {
             Peer.getDatabase().incrementsReplicationDegree(fileId, chunkNo);
         }
 
-        if (!Peer.getDatabase().addToStoredChunks(fileId, chunkNo)){
+        PeerInformation peer = new PeerInformation(fileId, chunkNo);
+        if (Peer.getDatabase().getStoredChunks().containsKey(peer)){
             Peer.getDatabase().incrementsStoredChunks(fileId, chunkNo);
         }
     }
