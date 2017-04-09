@@ -35,7 +35,7 @@ public class Peer implements Interface{
     private static int max_size_to_save = 5000000;
     private static int size_occupied = 0;
     private static String path;
-    private static boolean useEnhancements = true;
+    private static boolean useEnhancements = false;
 
 
     //Rmi

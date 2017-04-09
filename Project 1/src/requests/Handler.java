@@ -88,24 +88,16 @@ public class Handler {
         String fileId = header.getFileId();
         int chunkNo = header.getChunkNo();
         int replicationDeg = header.getReplicationDeg();
+        int random = ThreadLocalRandom.current().nextInt(0, 400 + 1);
 
         if (Peer.getOccupiedSize() + body.length < Peer.getMaxSizeToSave()) {
 
+            PeerInformation peer = new PeerInformation(fileId, chunkNo, replicationDeg);
+
             if (Peer.useEnhancements()){
 
-                PeerInformation peer = new PeerInformation(fileId, chunkNo, replicationDeg);
+                if (Peer.getDatabase().addToStoredChunks(fileId, chunkNo, replicationDeg)) {
 
-                if (!Peer.getDatabase().addToStoredChunks(fileId, chunkNo, replicationDeg)){
-
-                    System.out.println("Ja existo " + fileId + " " + chunkNo);
-                    //String path = fileId + "/" + chunkNo;
-                    //FileManager.deleteFile(path);
-
-                    //FileManager.saveFile(body, fileId, chunkNo);
-                }
-                else{
-
-                    int random = ThreadLocalRandom.current().nextInt(0, 400 + 1);
                     try {
                         TimeUnit.MILLISECONDS.sleep(random);
                     } catch (InterruptedException e) {
@@ -113,13 +105,9 @@ public class Handler {
                     }
 
                     int realDeg = Peer.getDatabase().getStoredChunks().get(peer);
-                    System.out.println("grau real " + realDeg);
-                    System.out.println("grau desejado " + peer.getReplicationDeg());
-                    System.out.println("chunkNo: " + peer.getChunkNo());
 
-                    if (realDeg < peer.getReplicationDeg()){
+                    if (realDeg < peer.getReplicationDeg()) {
 
-                        System.out.println("vou guardar o ficheiro");
                         FileManager.saveFile(body, fileId, chunkNo);
                         Peer.getDatabase().incrementsStoredChunks(fileId, chunkNo);
                         BackupProtocol.sendStoredMessage(fileId, chunkNo);
@@ -127,9 +115,24 @@ public class Handler {
                 }
             }
             else{
+                if (!Peer.getDatabase().addToStoredChunks(fileId, chunkNo, replicationDeg)){
 
+                    String path = fileId + "/" + chunkNo;
+                    FileManager.deleteFile(path);
+                }
+                else{
+                    random = ThreadLocalRandom.current().nextInt(0, 400+1);
+                    try {
+                        TimeUnit.MILLISECONDS.sleep(random);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    BackupProtocol.sendStoredMessage(fileId, chunkNo);
+                    Peer.getDatabase().incrementsStoredChunks(fileId, chunkNo);
+                }
+                FileManager.saveFile(body, fileId, chunkNo);
             }
-
         }
     }
 
