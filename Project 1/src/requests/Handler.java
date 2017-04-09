@@ -106,14 +106,10 @@ public class Handler {
 
             //Se não conseguir adicionar à base de dados, é porque já lá está guardado
             if (!Peer.getDatabase().addToStoredChunks(fileId, chunkNo, replicationDeg)) {
-                System.out.println("Já tenho, bro");
                 String path = fileId + "/" + chunkNo;
                 FileManager.deleteFile(path);
             }
             else{
-                System.out.println("A adicionar à bdad");
-
-                Peer.getDatabase().incrementsStoredChunks(fileId, chunkNo, replicationDeg);
                 int random = ThreadLocalRandom.current().nextInt(0, 400 + 1);
                 try {
                     TimeUnit.MILLISECONDS.sleep(random);
@@ -125,13 +121,13 @@ public class Handler {
             }
             //updates occupied size
             Peer.updateOccupiedSize(body.length);
-            System.out.println("espaço ocupado: " + Peer.getOccupiedSize());
             //saves file
             FileManager.saveFile(body, fileId, chunkNo);
         }
         else{
             System.out.println("I have no space to backup the file!");
         }
+        System.out.println(Peer.getDatabase().getStoredChunks());
     }
 
     public void handleStored(DecomposeMessage messageToHandle) throws IOException{
@@ -146,6 +142,7 @@ public class Handler {
         }
 
         if (!Peer.getDatabase().addToStoredChunks(fileId, chunkNo)){
+            System.out.println("Estou a incrementar");
             Peer.getDatabase().incrementsStoredChunks(fileId, chunkNo);
         }
     }
