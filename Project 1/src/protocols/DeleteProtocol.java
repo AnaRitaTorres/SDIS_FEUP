@@ -25,5 +25,17 @@ public class DeleteProtocol {
         DatagramPacket packet = new DatagramPacket(buf, buf.length, Peer.getMc().getAddress(), Peer.getMc().getPort_number());
 
         Peer.getMc().getSocket().send(packet);
+
+        Set<PeerInformation> set = new HashSet<>();
+
+        for (PeerInformation peer: Peer.getDatabase().getInformationStored().keySet()){
+            if (peer.getFileId().equals(fileId)) {
+                set.add(peer);
+                System.out.println("vou apagar: " + peer.getFileId());
+            }
+        }
+        Peer.getDatabase().getInformationStored().keySet().removeAll(set);
+
+        System.out.println("InformationStored: " + Peer.getDatabase().getInformationStored());
     }
 }
