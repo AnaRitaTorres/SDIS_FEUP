@@ -43,7 +43,7 @@ public class PeerDatabase {
         PeerInformation info = new PeerInformation(fileId, chunkNo, replicationDeg);
 
         if (!storedChunks.containsKey(info)) {
-            storedChunks.put(new PeerInformation(fileId, chunkNo, replicationDeg), 1);
+            storedChunks.put(new PeerInformation(fileId, chunkNo, replicationDeg), 0);
             return true;
         }
         return false;

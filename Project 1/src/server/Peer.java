@@ -13,6 +13,8 @@ import fileManager.FileManager;
 import protocols.*;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -33,7 +35,7 @@ public class Peer implements Interface{
     private static int max_size_to_save = 5000000;
     private static int size_occupied = 0;
     private static String path;
-    private static boolean useEnhancements = true;
+    private static boolean useEnhancements = false;
 
 
     //Rmi
@@ -163,6 +165,27 @@ public class Peer implements Interface{
 
     public static boolean useEnhancements() { return useEnhancements; }
 
+    public static void writeStoredFile() throws IOException,FileNotFoundException {
+        String path = "./Stored";
+        File file = new File(path);
+        FileOutputStream output = new FileOutputStream(file);
+
+        //se o ficheiro não existir
+        if (!file.exists()) {
+            file.createNewFile();
+        }
+
+       int size = getDatabase().getInformationStored().size();
+
+        for(int i=0; i < size; i++){
+           byte[] contentInBytes = getDatabase().getInformationStored().toString().getBytes();
+            output.write(contentInBytes);
+        }
+        output.flush();
+        output.close();
+    }
+
+
     @Override
     public void backup(File file, int replicationDeg, boolean useEnhancements) throws IOException, InterruptedException {
 
@@ -172,6 +195,7 @@ public class Peer implements Interface{
         for (int i = 0; i< chunksToBackup.size(); i++) {
             BackupProtocol.sendPutchunkMessage(chunksToBackup.get(i));
         }
+        writeStoredFile();
 
     }
 

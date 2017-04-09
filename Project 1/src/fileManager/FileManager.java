@@ -111,6 +111,8 @@ public class FileManager {
 
         FileOutputStream output = new FileOutputStream(new File(savePath + chunkNo));
         output.write(body);
+
+        Peer.updateOccupiedSize(body.length);
     }
 
     public static void deleteDirectory(String fileId) {
