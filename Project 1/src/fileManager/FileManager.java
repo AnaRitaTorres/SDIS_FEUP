@@ -112,17 +112,32 @@ public class FileManager {
         output.write(body);
     }
 
+    public static void deleteDirectory(String fileId) {
+
+        String path = Peer.getPath() + fileId;
+        File file = new File(path);
+        int spaceRelease = 0;
+
+        if (file.exists()){
+            File[] files = file.listFiles();
+            if(files != null){
+                for (int i=0; i<files.length; i++) {
+                    spaceRelease += files[i].length();
+                    files[i].delete();
+                }
+            }
+            Peer.releaseSpace(spaceRelease);
+            file.delete();
+        }
+    }
+
     public static void deleteFile(String fileId) {
 
         String path = Peer.getPath() + fileId;
         File file = new File(path);
 
         if (file.exists()){
-            File[] files = file.listFiles();
-            if(files != null){
-                for (int i=0; i<files.length; i++)
-                    files[i].delete();
-            }
+            Peer.releaseSpace((int)file.length());
             file.delete();
         }
     }

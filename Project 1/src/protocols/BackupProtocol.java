@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 
 //NOTE:it's better to implement Runnable instead of extending Thread,
 // because you can implement many interfaces but extend only from a single class
-public class BackupProtocol{
+public class BackupProtocol {
 
     private static int NUM_ATTEMPTS = 5;
 
@@ -35,12 +35,16 @@ public class BackupProtocol{
 
         int num_attempts = 0;
         int random = ThreadLocalRandom.current().nextInt(0, 400);
+        boolean successful = false;
 
         while(num_attempts < NUM_ATTEMPTS) {
 
             //Se o grau de réplica for superior, sai do ciclo
-            if (Peer.getDatabase().getInformationStored().get(new PeerInformation(chunk.getFileId(), chunk.getChunkNo())) >= chunk.getReplicationDeg())
+            if (Peer.getDatabase().getInformationStored().get(new PeerInformation(chunk.getFileId(), chunk.getChunkNo())) >= chunk.getReplicationDeg()){
+                successful= true;
+                System.out.println("Backup done with replication degree equal or greater than the desired replication degree!");
                 break;
+            }
 
             //Manda mensagem para canal de backup
             Peer.getMdb().getSocket().send(packet);
@@ -51,6 +55,12 @@ public class BackupProtocol{
             num_attempts++;
             random *= 2;
         }
+
+        if (!successful){
+            System.out.println("Backup done with replication degree lesser than the desired replication degree!");
+        }
+
+        System.out.println("contem" + Peer.getDatabase().getInformationStored());
     }
 
     public static void sendStoredMessage(String fileId, int chunkNo) throws IOException {

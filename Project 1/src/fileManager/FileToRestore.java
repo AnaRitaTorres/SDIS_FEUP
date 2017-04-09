@@ -29,10 +29,6 @@ public class FileToRestore {
         return fileId;
     }
 
-    public Vector<byte[]> getChunks(){
-        return chunks;
-    }
-
     public void changePositionInVector(byte[] chunk, int position){
         if (chunks.get(position) == null)
             chunks.set(position, chunk);

@@ -13,10 +13,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
@@ -93,24 +91,46 @@ public class Handler {
             int chunkNo = header.getChunkNo();
             int replicationDeg = header.getReplicationDeg();
 
+            /*if (Peer.useEnhancements()){
+                System.out.println("cheguei");
+                PeerInformation peer = new PeerInformation(fileId, chunkNo, replicationDeg);
+                if (Peer.getDatabase().getStoredChunks().containsKey(peer)){
+                    int realReplicationDeg = Peer.getDatabase().getStoredChunks().get(peer);
+                    System.out.println(realReplicationDeg);
+                    if (realReplicationDeg >= replicationDeg) {
+                        System.out.println("Enhan: " + Peer.getDatabase().getStoredChunks());
+                        return;
+                    }
+                }
+            }*/
+
+            //Se não conseguir adicionar à base de dados, é porque já lá está guardado
+            if (!Peer.getDatabase().addToStoredChunks(fileId, chunkNo, replicationDeg)) {
+                System.out.println("Já tenho, bro");
+                String path = fileId + "/" + chunkNo;
+                FileManager.deleteFile(path);
+            }
+            else{
+                System.out.println("A adicionar à bdad");
+
+                Peer.getDatabase().incrementsStoredChunks(fileId, chunkNo, replicationDeg);
+                int random = ThreadLocalRandom.current().nextInt(0, 400 + 1);
+                try {
+                    TimeUnit.MILLISECONDS.sleep(random);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                BackupProtocol.sendStoredMessage(fileId, chunkNo);
+            }
             //updates occupied size
             Peer.updateOccupiedSize(body.length);
-
+            System.out.println("espaço ocupado: " + Peer.getOccupiedSize());
             //saves file
             FileManager.saveFile(body, fileId, chunkNo);
-
-            if (!Peer.getDatabase().addToStoredChunks(fileId, chunkNo, replicationDeg)){
-                Peer.getDatabase().incrementsStoredChunks(fileId, chunkNo, replicationDeg);
-            }
-
-            int random = ThreadLocalRandom.current().nextInt(0, 400 + 1);
-            try {
-                TimeUnit.MILLISECONDS.sleep(random);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            BackupProtocol.sendStoredMessage(fileId, chunkNo);
+        }
+        else{
+            System.out.println("I have no space to backup the file!");
         }
     }
 
@@ -135,7 +155,7 @@ public class Handler {
         DecomposeHeader header = new DecomposeHeader(messageToHandle.getHeader());
 
         String fileId = header.getFileId();
-        FileManager.deleteFile(fileId);
+        FileManager.deleteDirectory(fileId);
     }
 
     public void handleGetchunk(DecomposeMessage messageToHandle) throws IOException {
@@ -146,7 +166,6 @@ public class Handler {
         int chunkNo = header.getChunkNo();
 
         String pathString = Peer.getPath() + fileId + "/" + chunkNo;
-        System.out.println(pathString);
 
         File file = new File(pathString);
         Path path = Paths.get(pathString);

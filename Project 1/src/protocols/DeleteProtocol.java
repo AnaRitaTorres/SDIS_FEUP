@@ -31,7 +31,6 @@ public class DeleteProtocol {
         for (PeerInformation peer: Peer.getDatabase().getInformationStored().keySet()){
             if (peer.getFileId().equals(fileId)) {
                 set.add(peer);
-                System.out.println("vou apagar: " + peer.getFileId());
             }
         }
         Peer.getDatabase().getInformationStored().keySet().removeAll(set);

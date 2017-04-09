@@ -10,10 +10,7 @@ import chunk.Chunk;
 import client.Interface;
 import database.PeerDatabase;
 import fileManager.FileManager;
-import protocols.BackupProtocol;
-import protocols.DeleteProtocol;
-import protocols.ReclaimProtocol;
-import protocols.RestoreProtocol;
+import protocols.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,6 +33,8 @@ public class Peer implements Interface{
     private static int max_size_to_save = 5000000;
     private static int size_occupied = 0;
     private static String path;
+    private static boolean useEnhancements = true;
+
 
     //Rmi
     private static Registry registry;
@@ -48,8 +47,6 @@ public class Peer implements Interface{
     private static MC mc;
     private static MDB mdb;
     private static MDR mdr;
-
-    private static boolean use_enhancements;
 
     private static PeerDatabase database = new PeerDatabase();
 
@@ -67,7 +64,6 @@ public class Peer implements Interface{
         new Thread(mdr).start();
 
         initializeRmi();
-
     }
 
     public static boolean validArguments(String[] args) throws UnknownHostException {
@@ -147,7 +143,7 @@ public class Peer implements Interface{
         max_size_to_save = size;
     }
 
-    public static String getPath(){ return path; }
+    public static String getPath() { return path; }
 
     public static int getOccupiedSize() {
         return size_occupied;
@@ -157,10 +153,18 @@ public class Peer implements Interface{
         size_occupied += size;
     }
 
-    public static PeerDatabase getDatabase(){ return database; }
+    public static void releaseSpace(int size){
+        size_occupied -= size;
+        if (size_occupied < 0)
+            size_occupied = 0;
+    }
+
+    public static PeerDatabase getDatabase() { return database; }
+
+    public static boolean useEnhancements() { return useEnhancements; }
 
     @Override
-    public void backup(File file, int replicationDeg) throws IOException, InterruptedException {
+    public void backup(File file, int replicationDeg, boolean useEnhancements) throws IOException, InterruptedException {
 
         FileManager fileManager = new FileManager(file, replicationDeg);
         ArrayList<Chunk> chunksToBackup = fileManager.divideFileInChunks();
@@ -196,7 +200,6 @@ public class Peer implements Interface{
             ReclaimProtocol protocol = new ReclaimProtocol(dif);
             protocol.reclaim();
         }
-
     }
 
     @Override
