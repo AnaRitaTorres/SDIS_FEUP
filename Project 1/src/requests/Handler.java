@@ -6,14 +6,19 @@ import messages.DecomposeMessage;
 import protocols.BackupProtocol;
 import protocols.RestoreProtocol;
 import server.Peer;
+import server.PeerInformation;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by catarina on 31-03-2017.
@@ -93,6 +98,14 @@ public class Handler {
 
             if (!Peer.getDatabase().addToStoredChunks(fileId, chunkNo, replicationDeg)){
                 Peer.getDatabase().incrementsStoredChunks(fileId, chunkNo, replicationDeg);
+                //System.out.println(Peer.getDatabase().getStoredChunks());
+            }
+
+            int random = ThreadLocalRandom.current().nextInt(0, 400 + 1);
+            try {
+                TimeUnit.MILLISECONDS.sleep(random);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
 
             BackupProtocol.sendStoredMessage(fileId, chunkNo);
@@ -137,6 +150,12 @@ public class Handler {
 
         if (file.exists()) {
             byte[] body = Files.readAllBytes(path);
+            int random = ThreadLocalRandom.current().nextInt(0, 400 + 1);
+            try {
+                TimeUnit.MILLISECONDS.sleep(random);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             RestoreProtocol.sendChunkMessage(fileId, chunkNo, body);
         }
         else{
