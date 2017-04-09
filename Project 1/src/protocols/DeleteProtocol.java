@@ -26,16 +26,13 @@ public class DeleteProtocol {
 
         Peer.getMc().getSocket().send(packet);
 
-        Set<PeerInformation> set= new HashSet();
+        Set<PeerInformation> set = new HashSet<>();
 
-        //Delete chunk from informationStored
-        for (PeerInformation key : Peer.getDatabase().getInformationStored().keySet()) {
-
-            if (key.getFileId().equals(fileId))
-                set.add(key);
-
+        for (PeerInformation peer: Peer.getDatabase().getInformationStored().keySet()){
+            if (peer.getFileId().equals(fileId)) {
+                set.add(peer);
+            }
         }
-
         Peer.getDatabase().getInformationStored().keySet().removeAll(set);
     }
 }
