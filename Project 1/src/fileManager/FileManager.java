@@ -14,6 +14,8 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
 
 /**
  * Created by iamgroot on 27/03/17.
@@ -159,5 +161,34 @@ public class FileManager {
             System.err.println("File doesn't exist.");
 
         return numChunks;
+    }
+
+    public static void writeStoredChunksFile() throws IOException {
+        String savePath = "./Stored/Peer" + Peer.getServerId();
+        Path path = Paths.get(savePath);
+        File file = new File(savePath);
+
+        if (!Files.exists(path))
+            file.getParentFile().mkdirs();
+
+        FileOutputStream output = new FileOutputStream(file);
+
+        //se o ficheiro não existir
+        if (!file.exists()) {
+            file.createNewFile();
+        }
+
+        Iterator it = Peer.getDatabase().getStoredChunks().entrySet().iterator();
+        while (it.hasNext()) {
+            HashMap.Entry pair = (HashMap.Entry) it.next();
+            String key = pair.getKey().toString();
+            String value = pair.getValue().toString();
+            String line = key + " " + value + "\n";
+            byte[] contentInBytes = line.getBytes();
+            output.write(contentInBytes);
+        }
+        output.flush();
+        output.close();
+
     }
 }

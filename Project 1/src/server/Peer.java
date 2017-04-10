@@ -25,6 +25,8 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.server.ExportException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 
 public class Peer implements Interface{
 
@@ -165,26 +167,6 @@ public class Peer implements Interface{
 
     public static boolean useEnhancements() { return useEnhancements; }
 
-    public static void writeStoredFile() throws IOException,FileNotFoundException {
-        String path = "./Stored";
-        File file = new File(path);
-        FileOutputStream output = new FileOutputStream(file);
-
-        //se o ficheiro não existir
-        if (!file.exists()) {
-            file.createNewFile();
-        }
-
-       int size = getDatabase().getInformationStored().size();
-
-        for(int i=0; i < size; i++){
-           byte[] contentInBytes = getDatabase().getInformationStored().toString().getBytes();
-            output.write(contentInBytes);
-        }
-        output.flush();
-        output.close();
-    }
-
 
     @Override
     public void backup(File file, int replicationDeg, boolean useEnhancements) throws IOException, InterruptedException {
@@ -195,7 +177,7 @@ public class Peer implements Interface{
         for (int i = 0; i< chunksToBackup.size(); i++) {
             BackupProtocol.sendPutchunkMessage(chunksToBackup.get(i));
         }
-        writeStoredFile();
+
 
     }
 
@@ -227,6 +209,31 @@ public class Peer implements Interface{
     }
 
     @Override
+    public void state(){
+
+        System.out.println("Files Init Backup:");
+
+        System.out.println("Each Chunk Stored:");
+
+        Iterator it = getDatabase().getInformationStored().entrySet().iterator();
+        while (it.hasNext()) {
+            HashMap.Entry pair = (HashMap.Entry)it.next();
+            String info = pair.getKey().toString();
+            String[] parts = info.split(" ");
+            System.out.println("File ID: "+ parts[0]);
+            System.out.println("Chunk No: "+ parts[1]);
+            System.out.println("Rep Degree: "+ parts[2] + "\n");
+            it.remove();
+        }
+        System.out.println("Max Space to Store Chunks:");
+        System.out.println(getMaxSizeToSave()/1024 + "\n");
+        System.out.println("Space Used to Backup Chunks:");
+        System.out.println(getOccupiedSize() + "\n");
+
+
+    }
+
+    @Override
     public void exit() throws RemoteException {
         try {
             // Unregister the RMI
@@ -241,5 +248,5 @@ public class Peer implements Interface{
         }
     }
 
-    public void state(){}
+
 }

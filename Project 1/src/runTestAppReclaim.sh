@@ -1,3 +1,3 @@
 #!/bin/sh
 
-java client.TestApp 1923 RECLAIM 50000
+java client.TestApp 1923 RECLAIM 50

@@ -68,6 +68,7 @@ public class Handler {
                     handleChunk(messageToHandle);
                     break;
                 case REMOVED:
+                    System.out.println("MESSAGETOHANDLE IS NULL ? " + (messageToHandle == null));
                     handleRemoved(messageToHandle);
                     break;
             }
@@ -111,6 +112,7 @@ public class Handler {
                         FileManager.saveFile(body, fileId, chunkNo);
                         Peer.getDatabase().incrementsStoredChunks(fileId, chunkNo);
                         BackupProtocol.sendStoredMessage(fileId, chunkNo);
+                        FileManager.writeStoredChunksFile();
                     }
                 }
             }
@@ -130,6 +132,7 @@ public class Handler {
 
                     BackupProtocol.sendStoredMessage(fileId, chunkNo);
                     Peer.getDatabase().incrementsStoredChunks(fileId, chunkNo);
+                    FileManager.writeStoredChunksFile();
                 }
                 FileManager.saveFile(body, fileId, chunkNo);
             }
@@ -151,6 +154,7 @@ public class Handler {
         if (Peer.getDatabase().getStoredChunks().containsKey(peer)){
             Peer.getDatabase().incrementsStoredChunks(fileId, chunkNo);
         }
+        FileManager.writeStoredChunksFile();
     }
 
     public void handleDelete(DecomposeMessage messageToHandle) throws  IOException{
@@ -222,13 +226,17 @@ public class Handler {
 
         int desiredReplicationDeg = Peer.getDatabase().getDesiredReplicationDeg(fileId, chunkNo, Peer.getDatabase().getInformationStored());
 
-        if (desiredReplicationDeg == -1){
-            desiredReplicationDeg = Peer.getDatabase().getDesiredReplicationDeg(fileId, chunkNo, Peer.getDatabase().getStoredChunks());
+        if (desiredReplicationDeg != -1){
+          if (Peer.getDatabase().getInformationStored().get(peerInfo) < desiredReplicationDeg){
+              BackupProtocol.sendStoredMessage(fileId, chunkNo);
+          }
         }
-
-        //Se o valor real for inferior ao desejado
-        if (Peer.getDatabase().getStoredChunks().get(peerInfo) < desiredReplicationDeg){
-            BackupProtocol.sendStoredMessage(fileId, chunkNo);
+        else {
+            desiredReplicationDeg = Peer.getDatabase().getDesiredReplicationDeg(fileId, chunkNo, Peer.getDatabase().getStoredChunks());
+            //Se o valor real for inferior ao desejado
+            if (Peer.getDatabase().getStoredChunks().get(peerInfo) < desiredReplicationDeg){
+                BackupProtocol.sendStoredMessage(fileId, chunkNo);
+            }
         }
     }
 

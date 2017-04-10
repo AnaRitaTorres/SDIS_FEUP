@@ -1,10 +1,12 @@
 package database;
 
+import fileManager.FileManager;
 import fileManager.FileToRestore;
 import server.Peer;
 import server.PeerInformation;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -23,9 +25,11 @@ public class PeerDatabase {
     private static Vector<FileToRestore> filesToRestore;
 
     public PeerDatabase(){
-        informationStored = new HashMap<>();
-        storedChunks = new HashMap<>();
-        filesToRestore = new Vector<>();
+
+           informationStored = new HashMap<>();
+           storedChunks = new HashMap<>();
+           filesToRestore = new Vector<>();
+
     }
 
     public static HashMap<PeerInformation, Integer> getInformationStored() { return informationStored; }
