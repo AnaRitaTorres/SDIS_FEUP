@@ -93,7 +93,7 @@ public class Handler {
         if (Peer.getOccupiedSize() + body.length < Peer.getMaxSizeToSave()) {
 
             PeerInformation peer = new PeerInformation(fileId, chunkNo, replicationDeg);
-
+            
             if (Peer.useEnhancements()){
 
                 if (Peer.getDatabase().addToStoredChunks(fileId, chunkNo, replicationDeg)) {

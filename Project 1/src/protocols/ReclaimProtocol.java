@@ -29,8 +29,6 @@ public class ReclaimProtocol {
         //Deletes from storedChunks, chunks that are not stored in this peer
         Peer.getDatabase().deleteTrashFromStoredChunks();
 
-        System.out.println(Peer.getDatabase().getStoredChunks());
-
         while(to_reclaim_space > deleted_space){
 
             Set<PeerInformation> set = new HashSet<>();
@@ -41,15 +39,16 @@ public class ReclaimProtocol {
                 if (Peer.getDatabase().getStoredChunks().get(peer) > peer.getReplicationDeg()){
 
                     String path = Peer.getPath() + peer.getFileId() + "/" + peer.getChunkNo();
-                    System.out.println("Path: " + path);
 
                     File file = new File(path);
                     if (file.exists()){
                         deleted_space += file.length();
                         set.add(peer);
                         sendRemoved(peer.getFileId(), peer.getChunkNo());
+                        Peer.releaseSpace((int)file.length());
+                        file.delete();
 
-                        if (deleted_space <= to_reclaim_space){
+                        if (deleted_space >= to_reclaim_space){
                             break;
                         }
                     }
@@ -58,8 +57,9 @@ public class ReclaimProtocol {
 
             Peer.getDatabase().getStoredChunks().keySet().removeAll(set);
 
-            if (deleted_space <= to_reclaim_space)
+            if (deleted_space >= to_reclaim_space){
                 break;
+            }
 
             //Caso não haja mais ficheiros com grau de réplica desejado superior ao grau real
             set = new HashSet<>();
@@ -67,7 +67,6 @@ public class ReclaimProtocol {
             for (PeerInformation peer: Peer.getDatabase().getStoredChunks().keySet()){
 
                 String path = Peer.getPath() + peer.getFileId() + "/" + peer.getChunkNo();
-                System.out.println("Path: " + path);
 
                 File file = new File(path);
 
@@ -76,13 +75,14 @@ public class ReclaimProtocol {
                     deleted_space += file.length();
                     set.add(peer);
                     sendRemoved(peer.getFileId(), peer.getChunkNo());
+                    Peer.releaseSpace((int)file.length());
+                    file.delete();
 
-                    if (deleted_space <= to_reclaim_space)
+                    if (deleted_space >= to_reclaim_space)
                         break;
 
                 }
             }
-
             Peer.getDatabase().getStoredChunks().keySet().removeAll(set);
 
         }
