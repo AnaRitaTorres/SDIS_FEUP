@@ -202,11 +202,10 @@ public class Handler {
             if (!Peer.getDatabase().getFilesToRestore().contains(body))
                 Peer.getDatabase().getFilesToRestore().elementAt(position).changePositionInVector(body, chunkNo-1);
 
-        }
-
-        //Se vector estiver cheio
-        if (Peer.getDatabase().getFilesToRestore().elementAt(position).filledVector()){
-            Peer.getDatabase().getFilesToRestore().elementAt(position).saveFile();
+            //Se vector estiver cheio
+            if (Peer.getDatabase().getFilesToRestore().elementAt(position).filledVector()){
+                Peer.getDatabase().getFilesToRestore().elementAt(position).saveFile();
+            }
         }
     }
 
