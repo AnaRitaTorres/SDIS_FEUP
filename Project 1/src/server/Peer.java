@@ -199,7 +199,7 @@ public class Peer implements Interface{
 
         if (size_occupied <= reclaimed_space){
             setMaxSizeToSave(reclaimed_space);
-            System.out.println("Set max space storage to " + size_occupied);
+            System.out.println("Set max space storage to " + getMaxSizeToSave());
         }
         else {
             int dif = size_occupied - reclaimed_space;
