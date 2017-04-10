@@ -188,7 +188,7 @@ public class Handler {
             RestoreProtocol.sendChunkMessage(fileId, chunkNo, body);
         }
         else{
-            System.err.println("Não existe ficheiro");;
+            System.err.println("Não existe ficheiro");
         }
     }
 
