@@ -1,8 +1,5 @@
 package messages;
 
-/**
- * Created by iamgroot on 29/03/17.
- */
 public class ComposeHeader {
 
     private final String CRLF = "\r\n";

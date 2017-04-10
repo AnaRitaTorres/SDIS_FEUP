@@ -1,8 +1,5 @@
 package messages;
 
-/**
- * Created by iamgroot on 25/03/17.
- */
 import java.lang.String;
 
 public enum MessageType {

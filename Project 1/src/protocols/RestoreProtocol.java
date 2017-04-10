@@ -13,9 +13,6 @@ import java.net.DatagramPacket;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Created by catarina on 06-04-2017.
- */
 public class RestoreProtocol {
 
     public void sendGetchunkMessage(File file) throws IOException {

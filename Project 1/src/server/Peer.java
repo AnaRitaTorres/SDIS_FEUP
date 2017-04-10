@@ -1,8 +1,5 @@
 package server;
 
-/**
- * Created by catarina on 21-03-2017.
- */
 import channels.MC;
 import channels.MDB;
 import channels.MDR;

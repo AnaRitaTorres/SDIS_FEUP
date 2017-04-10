@@ -1,9 +1,5 @@
 package client;
 
-/**
- * Created by catarina on 21-03-2017.
- */
-
 import java.io.File;
 import java.io.IOException;
 import java.rmi.Remote;

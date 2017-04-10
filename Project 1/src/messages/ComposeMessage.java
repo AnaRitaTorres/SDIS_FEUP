@@ -6,9 +6,6 @@ import java.net.DatagramPacket;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-/**
- * Created by iamgroot on 25/03/17.
- */
 public class ComposeMessage {
 
     private ComposeHeader header;
@@ -78,8 +75,6 @@ public class ComposeMessage {
     }
 
     public byte[] convertDeleteMessageToByteArray(){
-
-        //TODO: criar função para não repetir código
 
         byte[] buf = header.convertDeleteHeaderToString().getBytes();
         byte[] crfl = CRLF.getBytes();

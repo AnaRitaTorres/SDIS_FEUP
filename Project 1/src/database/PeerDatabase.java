@@ -12,9 +12,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Vector;
 
-/**
- * Created by catarina on 08-04-2017.
- */
 public class PeerDatabase {
 
     //To store replicationDegree associated with each <fileId, chunkNo>

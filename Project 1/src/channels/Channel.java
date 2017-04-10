@@ -8,9 +8,6 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 
-/**
- * Created by iamgroot on 27/03/17.
- */
 public class Channel implements Runnable{
 
     protected static final int PACKET_MAX_SIZE = 65000;
@@ -62,7 +59,6 @@ public class Channel implements Runnable{
             }
         }
 
-        //TODO:close socket(se der) - para diminuir gastos de mem
     }
 
     public InetAddress getAddress() {

@@ -1,6 +1,5 @@
-package client; /**
- * Created by iamgroot on 18/03/17.
- */
+package client; 
+
 
 import java.io.*;
 import java.rmi.RemoteException;
@@ -33,12 +32,8 @@ public class TestApp {
             registry = LocateRegistry.getRegistry();
             rmi = (Interface) registry.lookup(peer_ap);
 
-            /*
-            TODO: Change switch statement when doing enhancements
-            */
             switch(sub_protocol){
                 case "BACKUP":
-                    //TODO: adicionar use_enhancements
                     rmi.backup(file, replicationDeg, false);
                     break;
                 case "BACKUPENH":

@@ -17,9 +17,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 
-/**
- * Created by iamgroot on 27/03/17.
- */
 public class FileManager {
 
     private static File file;

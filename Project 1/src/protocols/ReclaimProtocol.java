@@ -11,9 +11,6 @@ import java.net.DatagramPacket;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Created by catarina on 09-04-2017.
- */
 public class ReclaimProtocol {
 
     int to_reclaim_space;

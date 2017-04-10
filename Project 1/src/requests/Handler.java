@@ -18,9 +18,6 @@ import java.util.Queue;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Created by catarina on 31-03-2017.
- */
 public class Handler {
 
     Queue<DecomposeMessage> requestsToHandle;
@@ -50,7 +47,7 @@ public class Handler {
         //Peer ignores its own requests
         if (header.getSenderId() != Peer.getServerId()){
 
-            //TODO: completar requests
+            
             switch(header.getMessageType()){
                 case PUTCHUNK:
                     handlePutchunk(messageToHandle);
@@ -68,7 +65,6 @@ public class Handler {
                     handleChunk(messageToHandle);
                     break;
                 case REMOVED:
-                    System.out.println("MESSAGETOHANDLE IS NULL ? " + (messageToHandle == null));
                     handleRemoved(messageToHandle);
                     break;
             }
@@ -82,7 +78,7 @@ public class Handler {
 
     public void handlePutchunk(DecomposeMessage messageToHandle) throws IOException {
 
-        //TODO: alterar este cabrão
+     
         byte[] body = messageToHandle.getBody();
         DecomposeHeader header = new DecomposeHeader(messageToHandle.getHeader());
 

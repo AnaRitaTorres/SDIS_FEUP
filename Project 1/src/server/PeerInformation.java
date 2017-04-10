@@ -2,9 +2,6 @@ package server;
 
 import java.util.Objects;
 
-/**
- * Created by catarina on 03-04-2017.
- */
 public class PeerInformation {
 
     private String fileId;

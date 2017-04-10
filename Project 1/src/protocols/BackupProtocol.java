@@ -11,12 +11,7 @@ import java.net.DatagramPacket;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Created by catarina on 23-03-2017.
- */
 
-//NOTE:it's better to implement Runnable instead of extending Thread,
-// because you can implement many interfaces but extend only from a single class
 public class BackupProtocol {
 
     private static int NUM_ATTEMPTS = 5;

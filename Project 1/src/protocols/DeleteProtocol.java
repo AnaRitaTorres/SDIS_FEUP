@@ -10,9 +10,6 @@ import java.net.DatagramPacket;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Created by iamgroot on 03/04/17.
- */
 public class DeleteProtocol {
 
     public static void sendDeleteMessage(String fileId) throws IOException{

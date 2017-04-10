@@ -6,9 +6,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Vector;
 
-/**
- * Created by catarina on 07-04-2017.
- */
 public class FileToRestore {
 
     private String fileId;
